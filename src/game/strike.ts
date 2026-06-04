@@ -79,9 +79,9 @@ export function applyStrike(
     if (!srcArena) return { ok: false, error: 'sourceArena out of range' };
     const g = srcArena.garrisons[attacker];
     if (!g) return { ok: false, error: `no ${attacker} garrison at sourceArena ${action.sourceArena}` };
-    // §5.1 "from hand, or an adjacent garrison" — enforce adjacency.
-    if (Math.abs(action.sourceArena - action.targetArena) !== 1) {
-      return { ok: false, error: 'strike from garrison must target an adjacent arena (TBD-cowork-Q8)' };
+    // Cowork d4a5dc89 Q3: adjacency DROPPED. Attack from a garrison can hit any arena.
+    if (action.sourceArena === action.targetArena) {
+      return { ok: false, error: 'cannot attack the arena you are already in' };
     }
     attackingGarrison = ns.garrisons.find((x) => x.id === g.id)!;
     // The attacking garrison leaves its source arena to swing.

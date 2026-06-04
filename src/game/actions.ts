@@ -198,14 +198,14 @@ function applyRedeploy(state: GameState, player: PlayerId, action: Extract<Actio
   const g = arenaFrom.garrisons[player];
   if (!g) return { ok: false, error: `no ${player} garrison at arena ${action.fromArena}` };
   if (arenaTo.garrisons[player]) return { ok: false, error: `arena ${action.toArena} already occupied by ${player}` };
-  if (Math.abs(action.fromArena - action.toArena) !== 1) {
-    return { ok: false, error: 'redeploy must be to an adjacent arena (TBD-cowork-Q8)' };
-  }
+  // Cowork d4a5dc89 Q3: adjacency DROPPED for Redeploy/MOVE — go to any empty arena you own.
 
   const ns = cloneState(state);
   const newG = ns.garrisons.find((x) => x.id === g.id)!;
   newG.arena = action.toArena;
-  newG.dugIn = false;  // §4: redeploy strips Dug-In
+  newG.dugIn = false;       // §4: redeploy strips Dug-In
+  // Cowork d4a5dc89 Q6: MOVE re-hides the garrison ("they slipped it back into the dark").
+  newG.hidden = true;
   ns.arenas[action.fromArena]!.garrisons[player] = null;
   ns.arenas[action.toArena]!.garrisons[player] = newG;
   ns.log.push({ t: 'redeploy', player, from: action.fromArena, to: action.toArena });

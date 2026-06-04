@@ -26,14 +26,13 @@ export function Turn({ player, game, onAction }: Props) {
   return (
     <div className="v2-app">
       <div className="v2-status">
-        <span className="you">{player === 'p1' ? 'Player 1' : 'Player 2'}'s turn</span>
+        <span className="you">{player === 'p1' ? 'Player 1' : 'Player 2'}'s turn — your critters are <strong style={{color:'var(--good)'}}>GREEN</strong>, their creatures are <strong style={{color:'var(--danger)'}}>RED</strong></span>
         <span className="opp">
-          Scout tokens: {view.myScoutTokens} {view.opponent.scoutTokens >= 0 ? `· Opp scouts: ${view.opponent.scoutTokens}` : ''}
-          {' · '}Opp hand: {view.opponent.handSize} · Opp deck: {view.opponent.deckSize}
+          Your scouts: {view.myScoutTokens} · Their scouts: {view.opponent.scoutTokens} · Their hand: {view.opponent.handSize} · Their deck: {view.opponent.deckSize}
         </span>
       </div>
 
-      <div className="v2-section-title">Arenas</div>
+      <div className="v2-section-title">Arenas — tonight's bill</div>
       <div className="v2-arena-row">
         {view.arenas.map((a) => (
           <ArenaCell
@@ -47,62 +46,61 @@ export function Turn({ player, game, onAction }: Props) {
         ))}
       </div>
 
-      <div className="v2-section-title">Your hand</div>
+      <div className="v2-section-title">Your Critters (in hand)</div>
       <HandStrip hand={view.myHand} />
 
       <div className="v2-section">
-        <div className="v2-section-title">
-          {game.actionTakenThisTurn ? 'Action taken — end turn or call a bluff' : 'Action — pick one (you get ONE main action per turn)'}
-        </div>
-        <div className="v2-actions">
-          <button
-            onClick={() => setModal({ kind: 'garrison' })}
-            disabled={view.myHand.length === 0 || game.actionTakenThisTurn}
-            title={
-              game.actionTakenThisTurn ? 'Already used your main action this turn'
-              : view.myHand.length === 0 ? 'No critters in hand'
-              : 'Place a critter face-down in an empty arena. Optionally declare its name (truth OR bluff).'
-            }
-          >Garrison</button>
-          <button
-            onClick={() => setModal({ kind: 'scout' })}
-            disabled={game.actionTakenThisTurn}
-            title={
-              game.actionTakenThisTurn ? 'Already used your main action this turn'
-              : 'Spend scout tokens to learn what an opponent garrison is. Sniff (1 tag), Probe (yes/no), or Deep Scout (full card).'
-            }
-          >Scout</button>
-          <button
-            onClick={() => setModal({ kind: 'strike' })}
-            disabled={game.actionTakenThisTurn}
-            title={
-              game.actionTakenThisTurn ? 'Already used your main action this turn'
-              : 'Attack an arena. From hand: ANY arena. From a garrison: only an adjacent arena. Loser burns; winner takes the banner.'
-            }
-          >Strike</button>
-          <button
-            onClick={() => setModal({ kind: 'redeploy' })}
-            disabled={view.myGarrisons.length === 0 || game.actionTakenThisTurn}
-            title={
-              view.myGarrisons.length === 0 ? 'No garrisons to move'
-              : game.actionTakenThisTurn ? 'Already used your main action this turn'
-              : 'Move one of your garrisons to an empty adjacent arena. This strips the Dug-In bonus.'
-            }
-          >Redeploy</button>
-          <button
-            onClick={() => setModal({ kind: 'call' })}
-            className="ghost"
-            title="Free, public, risky. If they lied → that garrison burns. If truth → you lose a scout token + reveal one of yours."
-          >Call a bluff (free)</button>
-          <button
-            onClick={() => onAction({ kind: 'EndTurn' })}
-            disabled={!game.actionTakenThisTurn}
-            title={
-              game.actionTakenThisTurn ? 'Draw a card (up to hand cap 3) and pass the device'
-              : 'You must take an action first'
-            }
-          >End turn</button>
-        </div>
+        {!game.actionTakenThisTurn ? (
+          <>
+            <div className="v2-section-title">Pick your move (one per turn)</div>
+            <div className="v2-actions">
+              <button
+                onClick={() => setModal({ kind: 'garrison' })}
+                disabled={view.myHand.length === 0}
+                title={
+                  view.myHand.length === 0 ? 'No critters in hand'
+                  : 'Place a critter face-down in an empty arena. Optionally declare its name (truth OR bluff).'
+                }
+              >Hide</button>
+              <button
+                onClick={() => setModal({ kind: 'scout' })}
+                title="Spend scout tokens to learn what a creature is. Sniff (1 tag), Probe (yes/no), or Deep Scout (full card)."
+              >Scout</button>
+              <button
+                onClick={() => setModal({ kind: 'strike' })}
+                title="Attack any arena from your hand, or from one of your hidden critters. Loser burns; winner takes the banner."
+              >Attack</button>
+              <button
+                onClick={() => setModal({ kind: 'redeploy' })}
+                disabled={view.myGarrisons.length === 0}
+                title={
+                  view.myGarrisons.length === 0 ? 'No critters on the board to move'
+                  : 'Move one of your critters to an empty arena. They go back into the dark (re-hidden); the Dug-In bonus is lost.'
+                }
+              >Move</button>
+              <button
+                onClick={() => setModal({ kind: 'call' })}
+                className="ghost"
+                title="Free, public, risky. If they lied → that creature burns. If truth → you lose a scout token + reveal one of yours."
+              >Call a bluff (free)</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="v2-section-title" style={{ color: 'var(--good)' }}>Action taken. Pass the device when ready.</div>
+            <div className="v2-actions">
+              <button
+                onClick={() => setModal({ kind: 'call' })}
+                className="ghost"
+                title="Free, public. If they lied → burn that creature. If truth → you pay a token + reveal one of yours."
+              >Call a bluff (free)</button>
+              <button
+                onClick={() => onAction({ kind: 'EndTurn' })}
+                title="Draw 1 (up to hand cap 3), pass the device to your opponent."
+              >End turn ▸</button>
+            </div>
+          </>
+        )}
       </div>
 
       {modal.kind === 'garrison' && (
@@ -138,7 +136,7 @@ function GarrisonModal({ player, game, onCancel, onConfirm }: { player: PlayerId
   return (
     <div className="v2-modal-backdrop">
       <div className="v2-modal">
-        <h2>Garrison a critter</h2>
+        <h2>Hide a critter</h2>
         <div className="v2-section-title">Pick a card</div>
         <HandStrip hand={view.myHand} selectedName={cardName} onSelect={setCardName} />
         <div className="v2-section-title" style={{ marginTop: 12 }}>Pick an empty arena</div>
@@ -247,45 +245,46 @@ function StrikeModal({ player, game, onCancel, onConfirm }: { player: PlayerId; 
   return (
     <div className="v2-modal-backdrop">
       <div className="v2-modal">
-        <h2>Strike</h2>
+        <h2>Attack</h2>
         <p style={{ fontSize: 12, color: 'var(--ink-dim)' }}>
-          <strong style={{ color: 'var(--accent)' }}>From hand:</strong> attack ANY arena. The card leaves your hand and (if it wins) garrisons the arena.<br/>
-          <strong style={{ color: 'var(--accent)' }}>From a garrison:</strong> only an adjacent arena (next column over). Dug-In bonus carries over.
+          Send a critter at an arena. From hand: card leaves your hand and (if it wins) garrisons the arena. From the board: your critter sallies out and (if it wins) holds the new ground.
+          Loser BURNS. Winner takes the banner.
         </p>
 
-        <div className="v2-section-title">Source: hand (any target)</div>
+        <div className="v2-section-title">Source: from hand</div>
         <HandStrip hand={view.myHand} selectedName={source?.kind === 'hand' ? source.cardName : undefined} onSelect={(n) => setSource({ kind: 'hand', cardName: n })} />
 
         {view.myGarrisons.length > 0 && (
           <>
-            <div className="v2-section-title" style={{ marginTop: 12 }}>Or: from a garrison</div>
+            <div className="v2-section-title" style={{ marginTop: 12 }}>Or: from one of your critters on the board</div>
             <div className="v2-row">
               {view.myGarrisons.map((g) => (
                 <button
                   key={g.id}
                   className={source?.kind === 'arena' && source.index === g.arena ? '' : 'ghost'}
                   onClick={() => setSource({ kind: 'arena', index: g.arena })}
+                  title={`Send ${g.card.creature.name} out from this arena`}
                 >
-                  A{g.arena + 1}: {g.card.creature.name}
+                  {g.card.creature.name}
                 </button>
               ))}
             </div>
           </>
         )}
 
-        <div className="v2-section-title" style={{ marginTop: 12 }}>Target arena</div>
+        <div className="v2-section-title" style={{ marginTop: 12 }}>Target arena (any other)</div>
         <div className="v2-row">
           {view.arenas.map((a) => {
-            // Adjacency rule for garrison-source strikes.
-            const eligible = source?.kind === 'hand' || (source?.kind === 'arena' && Math.abs(source.index - a.index) === 1);
+            // Cowork d4a5dc89: adjacency dropped. Only restriction: can't attack the arena you're in.
+            const eligible = source?.kind === 'hand' || (source?.kind === 'arena' && source.index !== a.index);
             return (
               <button
                 key={a.index}
                 className={targetArena === a.index ? '' : 'ghost'}
                 onClick={() => eligible && setTargetArena(a.index)}
                 disabled={!eligible}
-                title={eligible ? '' : 'Not adjacent'}
-              >A{a.index + 1} {a.biome}</button>
+                title={eligible ? `Attack at ${a.biome}` : 'Already in this arena'}
+              >{a.biome}</button>
             );
           })}
         </div>
@@ -300,7 +299,7 @@ function StrikeModal({ player, game, onCancel, onConfirm }: { player: PlayerId; 
               onConfirm(a);
             }}
             disabled={!source || targetArena === undefined}
-          >Strike</button>
+          >Attack</button>
           <button className="ghost" onClick={onCancel}>Cancel</button>
         </div>
       </div>
@@ -316,26 +315,27 @@ function RedeployModal({ player, game, onCancel, onConfirm }: { player: PlayerId
   return (
     <div className="v2-modal-backdrop">
       <div className="v2-modal">
-        <h2>Redeploy (linear adjacent, strips Dug-In)</h2>
+        <h2>Move a critter (re-hides into the dark, loses Dug-In)</h2>
+        <p style={{ fontSize: 12, color: 'var(--ink-dim)' }}>They slip into the night and reappear face-down somewhere else. Useful for repositioning a revealed critter — or your Ace.</p>
         <div className="v2-row">
-          <label>From:</label>
+          <label>Move which critter:</label>
           {view.myGarrisons.map((g) => (
-            <button key={g.id} className={from === g.arena ? '' : 'ghost'} onClick={() => setFrom(g.arena)}>A{g.arena + 1}: {g.card.creature.name}</button>
+            <button key={g.id} className={from === g.arena ? '' : 'ghost'} onClick={() => setFrom(g.arena)} title={`Currently at ${g.card.creature.name}'s arena`}>{g.card.creature.name}</button>
           ))}
         </div>
         <div className="v2-row" style={{ marginTop: 8 }}>
-          <label>To:</label>
+          <label>To where:</label>
           {view.arenas.map((a) => {
-            const eligible = from !== undefined && !occupied.has(a.index) && Math.abs(from - a.index) === 1;
+            const eligible = from !== undefined && from !== a.index && !occupied.has(a.index);
             return (
-              <button key={a.index} className={to === a.index ? '' : 'ghost'} onClick={() => eligible && setTo(a.index)} disabled={!eligible}>
-                A{a.index + 1}
+              <button key={a.index} className={to === a.index ? '' : 'ghost'} onClick={() => eligible && setTo(a.index)} disabled={!eligible} title={eligible ? '' : (occupied.has(a.index) ? 'You already have a critter here' : 'Already there')}>
+                {a.biome}
               </button>
             );
           })}
         </div>
         <div className="v2-actions">
-          <button onClick={() => from !== undefined && to !== undefined && onConfirm({ kind: 'Redeploy', fromArena: from, toArena: to })} disabled={from === undefined || to === undefined}>Redeploy</button>
+          <button onClick={() => from !== undefined && to !== undefined && onConfirm({ kind: 'Redeploy', fromArena: from, toArena: to })} disabled={from === undefined || to === undefined}>Move</button>
           <button className="ghost" onClick={onCancel}>Cancel</button>
         </div>
       </div>

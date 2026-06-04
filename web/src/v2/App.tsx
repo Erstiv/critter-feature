@@ -7,6 +7,7 @@ import { Setup } from './screens/Setup.tsx';
 import { PassGate } from './components/PassGate.tsx';
 import { GarrisonPhase } from './screens/GarrisonPhase.tsx';
 import { Turn } from './screens/Turn.tsx';
+import { Finale } from './screens/Finale.tsx';
 import { ActionResult } from './components/ActionResult.tsx';
 import { runAction, type ActionResult as AR, type Phase } from './state.ts';
 import './styles.css';
@@ -170,26 +171,16 @@ export function V2App() {
 
   if (phase.kind === 'win') {
     return (
-      <>
-        <Marquee />
-        <div className="v2-win">
-          <h2>{phase.winner.toUpperCase()} wins!</h2>
-          <p>{labelFor(phase.condition)}</p>
-        </div>
-        <div className="v2-app">
-          <button onClick={() => { setGame(null); setPhase({ kind: 'setup' }); setSeed((s) => s + 1); }}>New match</button>
-        </div>
-      </>
+      <Finale
+        game={game}
+        winner={phase.winner}
+        condition={phase.condition}
+        onRematch={() => { setGame(null); setPendingResult(null); setPhase({ kind: 'setup' }); setSeed((s) => s + 1); }}
+      />
     );
   }
 
   return null;
-}
-
-function labelFor(c: 'glory' | 'endurance' | 'assassination'): string {
-  if (c === 'glory') return '🏴 Glory — held a majority of arenas';
-  if (c === 'endurance') return '⏳ Endurance — opponent ran out of critters';
-  return '🦂 Assassination — burned the opponent\'s Ace';
 }
 
 function Marquee() {

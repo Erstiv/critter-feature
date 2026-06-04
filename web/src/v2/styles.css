@@ -86,18 +86,17 @@
 
 .v2-arena-header {
   font-family: var(--font-display);
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  color: var(--ink-dim);
-  text-transform: uppercase;
   text-align: center;
   margin-bottom: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
 }
-.v2-arena-num { color: var(--accent); font-weight: bold; }
-.v2-arena-biome { color: var(--ink); font-size: 12px; font-style: italic; text-transform: none; }
+.v2-arena-biome {
+  color: var(--marquee-cream);
+  font-family: var(--font-marquee);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 0 var(--marquee-red);
+}
 .v2-arena-banner {
   text-align: center;
   font-size: 22px;
@@ -268,22 +267,98 @@
 .v2-status .you { color: var(--marquee-gold); font-family: var(--font-display); font-size: 14px; }
 .v2-status .opp { color: var(--ink-dim); }
 
-/* Win banner — same DNA as KO line */
-.v2-win {
-  background: linear-gradient(180deg, #2a1810 0%, #1a0e08 100%);
-  border-top: 3px double var(--marquee-gold);
-  border-bottom: 3px double var(--marquee-gold);
-  padding: 22px;
-  text-align: center;
-  margin: 32px 0;
+/* Match-end full-screen spectacle (cowork d4a5dc89 Q9) */
+.v2-finale {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: radial-gradient(ellipse at center, #2a1810 0%, #0a0604 80%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px 24px;
+  overflow-y: auto;
 }
-.v2-win h2 {
+.v2-finale-eyebrow {
   font-family: var(--font-marquee);
-  font-size: 28px;
+  font-size: 14px;
+  letter-spacing: 8px;
   color: var(--marquee-gold);
-  text-shadow: 2px 2px 0 var(--marquee-red);
-  letter-spacing: 2px;
   text-transform: uppercase;
-  margin: 0 0 8px;
+  margin: 0 0 20px;
 }
-.v2-win p { color: var(--marquee-cream); font-family: var(--font-marquee); letter-spacing: 1px; }
+.v2-finale-banner {
+  background: linear-gradient(180deg, #2a1810 0%, #1a0e08 100%);
+  border-top: 5px double var(--marquee-gold);
+  border-bottom: 5px double var(--marquee-gold);
+  padding: 28px 48px;
+  text-align: center;
+  margin: 0 0 28px;
+}
+.v2-finale-banner h1 {
+  font-family: var(--font-marquee);
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--marquee-cream);
+  text-shadow: 3px 3px 0 var(--marquee-red), 6px 6px 0 rgba(0, 0, 0, 0.6);
+  margin: 0;
+  text-transform: uppercase;
+}
+.v2-finale-banner p {
+  font-family: var(--font-marquee);
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--marquee-gold);
+  margin: 12px 0 0;
+  text-transform: uppercase;
+}
+.v2-finale-narration {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--ink);
+  max-width: 720px;
+  text-align: center;
+  margin: 0 0 28px;
+  font-style: italic;
+}
+.v2-finale-unmask {
+  background: var(--panel);
+  border: 2px solid var(--marquee-gold);
+  padding: 18px 28px;
+  border-radius: 4px;
+  margin: 0 0 28px;
+  text-align: center;
+  max-width: 480px;
+}
+.v2-finale-unmask h3 {
+  font-family: var(--font-marquee);
+  color: var(--marquee-gold);
+  font-size: 14px;
+  letter-spacing: 4px;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+.v2-finale-unmask .ace-name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--marquee-cream);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 0;
+}
+.v2-finale-unmask .ace-flavor {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--ink-dim);
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+.v2-finale-actions { display: flex; gap: 16px; margin-top: 12px; }
+.v2-finale-actions button {
+  padding: 16px 32px;
+  font-size: 16px;
+  letter-spacing: 1px;
+}

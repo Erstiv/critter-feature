@@ -1,49 +1,66 @@
-// Per-strike narrative commentary — placeholder Cassius-Vane-adjacent lines until
-// cowork ships the actual voice. Variety driven by (winner, loser, biome, was-tie).
-//
-// Cowork: replace these arrays + selection logic with your voice when ready.
+// Cassius Vane commentary bank — delivered by cowork in memo d4a5dc89.
+// Register: B-movie ringside barker — punchy, lurid, fun. Same line shown to both
+// players (one's triumph is the other's obituary).
 
 import type { GameEvent } from '../../../src/game/index.ts';
 
 type StrikeResult = Extract<GameEvent, { t: 'strike-result' }>;
 type StrikeReq = Extract<GameEvent, { t: 'strike' }>;
 
-const TIE_LINES = [
-  "{att} bounces off {def}'s guard. Both walk it off — the {biome} keeps its silence.",
-  "Standoff in the {biome}. {att} reads the room, retreats. {def} doesn't move.",
-  "Trade of blows, even-up. {att} backs out; {def} holds the ground.",
+const WINNER_DECISIVE = [
+  "{winner} didn't fight {loser} on the {biome} — it filed the paperwork.",
+  "They'll be scraping {loser} off the {biome} for a week. {winner}: not a scratch.",
+  "{loser} came to the {biome} with a plan. {winner} came with an appetite.",
+  "Over before the dust settled. The {biome} belongs to {winner}; the grave belongs to {loser}.",
 ];
 
-const WINNER_LINES = [
-  "{winner} dismantles {loser} in the {biome}. Old news by morning.",
-  "Bad day for {loser}. {winner} took the {biome} clean.",
-  "{loser} crumples. {winner} plants the flag and doesn't look back.",
-  "The {biome} answered, and the answer was {winner}.",
-  "{winner} walks out of the {biome} {wound}. {loser} doesn't walk out at all.",
-  "{loser} brought a knife to a {biome}-fight. {winner} brought a {biome}.",
+const WINNER_NARROW = [
+  "Closest thing to a coin-flip the {biome}'s ever seen — and it landed on {winner}.",
+  "One more leg and it's {loser}'s night. It wasn't. {winner} survives the {biome}.",
+  "{winner} limps off the {biome} a winner; {loser} just limps off.",
+  "Two hits and a prayer — {winner} takes the {biome} by a whisker, {loser} by a wound.",
 ];
 
-const EMPTY_LINES = [
-  "{winner} strolls into an empty {biome}. Flag plants, crowd shrugs.",
-  "Uncontested. {winner} marks the {biome} as their own.",
-  "Nobody home in the {biome}. {winner} settles in.",
+const TIE_BOUNCE = [
+  "{loser} hammered the {biome} and the {biome} hammered back. Nobody falls; the line holds.",
+  "You can't dislodge what won't be dislodged. {loser} bounces off the {biome} and trudges home.",
+  "Dead even — so the dug-in critter keeps the dirt, and {loser} keeps the walk of shame.",
 ];
 
-const ACE_BURN_LINES = [
-  "🦂 They went for the throne and FOUND it. {winner} burns {loser}'s Ace — the {biome} hosts an assassination.",
-  "🦂 ACE DOWN. {winner} read the bluff perfectly. {loser}'s whole hand falls open.",
-  "🦂 The {biome} just hosted a coronation in reverse. {winner} burns the Ace; the rest is mop-up.",
+const EMPTY_ARENA = [
+  "{winner} strolls into an empty {biome} and plants the flag. Nobody home, nobody to argue.",
+  "An undefended {biome} is just real estate. {winner} took the deed.",
 ];
 
-const ASSASSINATION_WIN_LINES = [
-  "🦂 And just like that, it's over. The Ace is dust.",
-  "🦂 A clean kill. The hidden champion never even got to fight.",
+const ACE_BURN = [
+  "★ THE ACE FALLS ★ {loser} was the hidden champion all along — and {winner} dragged it into the light and ended it on the {biome}.",
+  "They hid their best in the dark. The dark gave it up. {winner} burns the Ace, and the floor goes out from under {loser}.",
+  "Assassination on the {biome}. {winner} found the one critter that mattered and made an example of it.",
 ];
 
-const GLORY_WIN_LINES = [
-  "🏴 Three flags. Game.",
-  "🏴 The majority holds. Match over.",
-  "🏴 The board belongs to {winner} now.",
+const MIND_COUNTER = [
+  "{winner} read the trick before it was thrown — you don't spook the thing that counts the wings. {loser} undone on the {biome}.",
+];
+
+const MENACE_NULL = [
+  "{loser} brought terror to a thing with no fear to give. The menace bounced; {winner} didn't blink on the {biome}.",
+];
+
+const WOUND_EROSION = [
+  "{winner} holds the {biome} — but leaves skin on it. Every win costs a little more.",
+  "Another notch, another wound. {winner} keeps the {biome} and bleeds the victory.",
+];
+
+const MATCH_END_GLORY = [
+  "THAT'S THE BILL. {winner} holds the room — three arenas, one night, total control. Roll credits.",
+];
+
+const MATCH_END_ENDURANCE = [
+  "{loser} reached for a critter and found an empty cage. {winner} wins the way the water-bear taught us — last one standing in the dark.",
+];
+
+const MATCH_END_ASSASSINATION = [
+  "★ MAIN EVENT KILL ★ {winner} hunted the hidden one through the whole card and put it down. {loser}'s champion is ash. That's how a Feature ends — grizzly, and on purpose.",
 ];
 
 function pick<T>(arr: T[], salt: number): T {
@@ -60,31 +77,51 @@ export type CommentaryInput = {
   biome: string;
   attackerName: string;
   defenderName: string | null;
-  woundLevel?: 'wound' | 'bloodied' | 'limping';
+  // Optional contextual hints — the caller passes what it knows.
+  defenderTags?: string[];      // for menace-null, mind-counter, etc.
+  attackerHadMenace?: boolean;
+  defenderHadMind?: boolean;
 };
 
 export function strikeCommentary(input: CommentaryInput, salt: number): string {
   const { strikeResult, biome, attackerName, defenderName } = input;
+  // EMPTY ARENA: no defender.
   if (defenderName === null) {
-    // Empty-arena strike.
-    return format(pick(EMPTY_LINES, salt), { winner: attackerName, biome });
+    return format(pick(EMPTY_ARENA, salt), { winner: attackerName, biome });
   }
+  // TIE.
   if (strikeResult.winner === 'tie') {
-    return format(pick(TIE_LINES, salt), { att: attackerName, def: defenderName, biome });
+    return format(pick(TIE_BOUNCE, salt), { loser: attackerName, biome });
   }
   const winner = strikeResult.winner === strikeResult.attacker ? attackerName : defenderName;
   const loser = strikeResult.winner === strikeResult.attacker ? defenderName : attackerName;
+  // ACE-BURN spectacle takes precedence.
   if (strikeResult.aceBurned) {
-    return format(pick(ACE_BURN_LINES, salt), { winner, loser, biome });
+    return format(pick(ACE_BURN, salt), { winner, loser, biome });
   }
-  return format(pick(WINNER_LINES, salt), {
-    winner, loser, biome,
-    wound: input.woundLevel ?? 'bloodied',
-  });
+  // Special-case lore counters when we can detect them from inputs.
+  if (input.attackerHadMenace && input.defenderTags?.some((t) => t === 'Fearless' || t === 'Mind')) {
+    return format(pick(MENACE_NULL, salt), { winner, loser, biome });
+  }
+  if (input.defenderHadMind && strikeResult.winner === strikeResult.defender) {
+    return format(pick(MIND_COUNTER, salt), { winner, loser, biome });
+  }
+  // Decisive vs narrow vs wound-erosion (rough: wide margin = decisive, 1-pt margin = narrow).
+  const margin = Math.abs(strikeResult.aHits - strikeResult.bHits);
+  if (margin >= 3) {
+    return format(pick(WINNER_DECISIVE, salt), { winner, loser, biome });
+  }
+  if (margin <= 1) {
+    return format(pick(WINNER_NARROW, salt), { winner, loser, biome });
+  }
+  // Fallback: a quietly-paid victory — wound-erosion flavor.
+  return format(pick(WOUND_EROSION, salt), { winner, loser, biome });
 }
 
-export function winCommentary(condition: 'glory' | 'endurance' | 'assassination', winner: string, salt: number): string {
-  if (condition === 'assassination') return format(pick(ASSASSINATION_WIN_LINES, salt), { winner });
-  if (condition === 'glory') return format(pick(GLORY_WIN_LINES, salt), { winner });
-  return `⏳ ${winner} outlasts. The cupboard is bare — game.`;
+export function winCommentary(condition: 'glory' | 'endurance' | 'assassination', winner: string, loser: string, salt: number): string {
+  let bank: string[];
+  if (condition === 'glory') bank = MATCH_END_GLORY;
+  else if (condition === 'endurance') bank = MATCH_END_ENDURANCE;
+  else bank = MATCH_END_ASSASSINATION;
+  return format(pick(bank, salt), { winner, loser });
 }

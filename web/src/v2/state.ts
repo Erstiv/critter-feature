@@ -1,7 +1,8 @@
 // Top-level state machine for the v0.2 hot-seat UI.
 import type { GameState, PlayerId, Action, GameEvent } from '../../../src/game/index.ts';
 import { applyAction, playerView } from '../../../src/game/index.ts';
-import { strikeCommentary } from './commentary.ts';
+import { strikeCommentary, winCommentary } from './commentary.ts';
+export { winCommentary };
 
 export type Phase =
   | { kind: 'setup' }

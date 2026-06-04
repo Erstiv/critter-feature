@@ -13,17 +13,18 @@ type Props = {
   onClick?: () => void;
 };
 
-export function ArenaCell({ index, biome, banner, myGarrison, oppGarrison, selectable, selected, onClick }: Props) {
+export function ArenaCell({ index: _index, biome, banner, myGarrison, oppGarrison, selectable, selected, onClick }: Props) {
   const className = ['v2-arena', selectable && 'selectable', selected && 'selected'].filter(Boolean).join(' ');
+  // Fight-card biome name (Cowork d4a5dc89 Q4): "the Open Ocean" not "A1".
+  const display = biomeDisplay(biome);
   return (
     <div className={className} onClick={onClick}>
       <div className="v2-arena-header">
-        <span className="v2-arena-num">A{index + 1}</span>
-        <span className="v2-arena-biome">{biome}</span>
+        <span className="v2-arena-biome">{display}</span>
       </div>
       <div className="v2-arena-banner">
-        {banner === null ? <span style={{ color: 'var(--ink-dim)' }}>·</span> : <span title={`${banner} banner`}>🏴</span>}
-        {banner && <span style={{ fontSize: 11, color: 'var(--accent)', marginLeft: 4 }}>{banner}</span>}
+        {banner === null ? <span style={{ color: 'var(--ink-dim)' }}>·</span> : <span title={`${banner === 'p1' ? 'Player 1' : 'Player 2'} controls this arena`}>🏴</span>}
+        {banner && <span style={{ fontSize: 11, color: 'var(--accent)', marginLeft: 4 }}>{banner === 'p1' ? 'P1' : 'P2'}</span>}
       </div>
 
       {/* My garrison */}
@@ -37,6 +38,23 @@ export function ArenaCell({ index, biome, banner, myGarrison, oppGarrison, selec
       </div>
     </div>
   );
+}
+
+// Map biome → fight-card name. Cowork d4a5dc89 Q4.
+function biomeDisplay(b: Biome): string {
+  const map: Record<Biome, string> = {
+    'Open Ocean': 'the Open Ocean',
+    'Deep Sea': 'the Deep',
+    'Ice/Arctic': 'the Ice',
+    Desert: 'the Desert',
+    Jungle: 'the Jungle',
+    Plains: 'the Plains',
+    Mountain: 'the Mountain',
+    Sky: 'the Sky',
+    'Wetland/Mud': 'the Wetlands',
+    Night: 'the Night',
+  };
+  return map[b];
 }
 
 function MyGarrison({ g }: { g: Garrison }) {
