@@ -1,5 +1,6 @@
 import type { Creature } from '../../../../src/types.ts';
 import { InfoButton } from './InfoButton.tsx';
+import { StatTooltip, derivedFor } from './StatTooltip.tsx';
 
 type Props = {
   hand: Creature[];
@@ -14,11 +15,13 @@ export function HandStrip({ hand, selectedName, onSelect }: Props) {
       {hand.map((c, i) => {
         const cls = ['v2-hand-card', onSelect && 'selectable', selectedName === c.name && 'selected'].filter(Boolean).join(' ');
         return (
-          <div key={`${c.name}-${i}`} className={cls} onClick={onSelect ? () => onSelect(c.name) : undefined}>
-            <div className="v2-hand-name">{c.name}<InfoButton name={c.name} /></div>
-            <div className="v2-hand-meta">{c.class} · [{c.tags.join(', ')}]</div>
-            <div className="v2-hand-meta">{c.ability.name} <span style={{ color: 'var(--accent)' }}>({c.ability.trigger})</span></div>
-          </div>
+          <StatTooltip key={`${c.name}-${i}`} name={c.name} mode="mine" card={derivedFor(c)}>
+            <div className={cls} onClick={onSelect ? () => onSelect(c.name) : undefined}>
+              <div className="v2-hand-name">{c.name}<InfoButton name={c.name} /></div>
+              <div className="v2-hand-meta">{c.class} · [{c.tags.join(', ')}]</div>
+              <div className="v2-hand-meta">{c.ability.name} <span style={{ color: 'var(--accent)' }}>({c.ability.trigger})</span></div>
+            </div>
+          </StatTooltip>
         );
       })}
     </div>

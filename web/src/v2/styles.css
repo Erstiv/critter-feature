@@ -468,3 +468,53 @@
   padding-left: 18px;
 }
 .v2-info-facts li { margin: 4px 0; }
+
+/* Hover-stat tooltip (cowork ebed31fd) */
+.v2-stat-tip {
+  background: #14110d;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 10px 12px;
+  min-width: 220px;
+  max-width: 320px;
+  z-index: 200;
+  pointer-events: none;
+  font-size: 12px;
+  color: var(--ink);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+}
+.v2-stat-tip-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--marquee-cream);
+  margin-bottom: 4px;
+}
+.v2-stat-tip-stats {
+  font-family: var(--font-display);
+  color: var(--accent);
+  font-size: 13px;
+  margin: 2px 0 6px;
+}
+.v2-stat-tip-row { margin: 2px 0; font-size: 11px; color: var(--ink-dim); }
+.v2-stat-tip-label { color: var(--ink-dim); font-style: italic; margin-right: 4px; }
+.v2-stat-tip-meta { font-size: 11px; color: var(--ink-dim); margin: 4px 0; }
+.v2-stat-tip-ability {
+  border-top: 1px solid var(--rule);
+  padding-top: 6px;
+  margin-top: 6px;
+}
+.v2-stat-tip-ability-name {
+  font-family: var(--font-display);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: bold;
+}
+.v2-stat-tip-ability-meta { color: var(--ink-dim); font-size: 10px; }
+.v2-stat-tip-flavor {
+  color: var(--ink-dim);
+  font-style: italic;
+  font-size: 11px;
+  margin-top: 4px;
+  line-height: 1.4;
+}

@@ -2,6 +2,7 @@ import type { PlayerId } from '../../../../src/game/index.ts';
 import type { Garrison, GarrisonView } from '../../../../src/game/index.ts';
 import type { Biome } from '../../../../src/types.ts';
 import { InfoButton } from './InfoButton.tsx';
+import { StatTooltip } from './StatTooltip.tsx';
 
 type Props = {
   index: number;
@@ -61,46 +62,59 @@ function biomeDisplay(b: Biome): string {
 function MyGarrison({ g }: { g: Garrison }) {
   const cls = ['v2-garrison', 'mine', g.isAce && 'ace'].filter(Boolean).join(' ');
   return (
-    <div className={cls} title={`Your ${g.card.creature.name}`}>
-      <span className="v2-garrison-label">YOU</span>
-      <div className="v2-garrison-name">
-        {g.card.creature.name}
-        <InfoButton name={g.card.creature.name} />
-        {g.isAce && <span style={{ color: 'var(--marquee-gold)', marginLeft: 4 }} title="Your Ace champion">★</span>}
+    <StatTooltip name={g.card.creature.name} mode="mine" card={g.card} woundOffset={g.woundOffset}>
+      <div className={cls}>
+        <span className="v2-garrison-label">YOU</span>
+        <div className="v2-garrison-name">
+          {g.card.creature.name}
+          <InfoButton name={g.card.creature.name} />
+          {g.isAce && <span style={{ color: 'var(--marquee-gold)', marginLeft: 4 }}>★</span>}
+        </div>
+        <div className="v2-garrison-meta">
+          M{g.card.might} · S{Math.max(0, g.card.stamina - g.woundOffset)}
+          {g.dugIn && <span className="badge" style={{ marginLeft: 4 }}>⛺ Dug-In</span>}
+        </div>
+        {g.declaration && <div style={{ fontSize: 10, color: 'var(--ink-dim)', marginTop: 2 }}>you declared: "{g.declaration}"</div>}
       </div>
-      <div className="v2-garrison-meta">
-        M{g.card.might} · S{Math.max(0, g.card.stamina - g.woundOffset)}
-        {g.dugIn && <span className="badge" style={{ marginLeft: 4 }} title="Dug-In: +2 dice when defending">⛺ Dug-In</span>}
-      </div>
-      {g.declaration && <div style={{ fontSize: 10, color: 'var(--ink-dim)', marginTop: 2 }}>you declared: "{g.declaration}"</div>}
-    </div>
+    </StatTooltip>
   );
 }
 
 function OppGarrison({ g }: { g: GarrisonView }) {
   if (!g.hidden) {
     return (
-      <div className="v2-garrison opp-revealed" title={`Opponent's ${g.cardName} — revealed`}>
-        <span className="v2-garrison-label">OPP</span>
-        <div className="v2-garrison-name">{g.cardName}<InfoButton name={g.cardName} /></div>
-        <div className="v2-garrison-meta">M{g.card.might} · S{g.card.stamina}</div>
-      </div>
+      <StatTooltip name={g.cardName} mode="opp-revealed" card={g.card}>
+        <div className="v2-garrison opp-revealed">
+          <span className="v2-garrison-label">OPP</span>
+          <div className="v2-garrison-name">{g.cardName}<InfoButton name={g.cardName} /></div>
+          <div className="v2-garrison-meta">M{g.card.might} · S{g.card.stamina}</div>
+        </div>
+      </StatTooltip>
     );
   }
   const peek = g.deepScoutedName;
+  const tooltipProps = {
+    name: peek ?? '???',
+    mode: 'opp-hidden' as const,
+    sniffedTags: g.sniffedTags,
+    deepScoutedCard: g.deepScoutedCard,
+    declared: g.declared,
+  };
   return (
-    <div className="v2-garrison opp-hidden" title={peek ? `You Deep Scouted this: ${peek}` : "Opponent's face-down creature"}>
-      <span className="v2-garrison-label">OPP</span>
-      <div className="v2-garrison-name">{peek ? `${peek} (face-down)` : '??? face-down'}{peek && <InfoButton name={peek} />}</div>
-      {peek && g.deepScoutedCard && (
-        <div className="v2-garrison-meta" style={{ color: 'var(--accent)' }}>
-          M{g.deepScoutedCard.might} · S{g.deepScoutedCard.stamina} <span style={{fontStyle:'italic'}}>(you scouted it)</span>
-        </div>
-      )}
-      {!peek && g.declared && <div style={{ fontSize: 10 }}>they claim: "{g.declared}"</div>}
-      {!peek && g.sniffedTags && g.sniffedTags.length > 0 && (
-        <div style={{ fontSize: 10, color: 'var(--accent)' }}>sniffed: [{g.sniffedTags.join(', ')}]</div>
-      )}
-    </div>
+    <StatTooltip {...tooltipProps}>
+      <div className="v2-garrison opp-hidden">
+        <span className="v2-garrison-label">OPP</span>
+        <div className="v2-garrison-name">{peek ? `${peek} (face-down)` : '??? face-down'}{peek && <InfoButton name={peek} />}</div>
+        {peek && g.deepScoutedCard && (
+          <div className="v2-garrison-meta" style={{ color: 'var(--accent)' }}>
+            M{g.deepScoutedCard.might} · S{g.deepScoutedCard.stamina} <span style={{fontStyle:'italic'}}>(you scouted it)</span>
+          </div>
+        )}
+        {!peek && g.declared && <div style={{ fontSize: 10 }}>they claim: "{g.declared}"</div>}
+        {!peek && g.sniffedTags && g.sniffedTags.length > 0 && (
+          <div style={{ fontSize: 10, color: 'var(--accent)' }}>sniffed: [{g.sniffedTags.join(', ')}]</div>
+        )}
+      </div>
+    </StatTooltip>
   );
 }
