@@ -1,8 +1,8 @@
 // Top-level for v0.2 hot-seat.
 import { useEffect, useMemo, useState } from 'react';
 import { mulberry32 } from '../../../src/engine/rng.ts';
-import { STARTER_8_PLUS } from '../../../src/data/starter8.ts';
 import { newGame, applyAction, type Action, type GameState, type PlayerId } from '../../../src/game/index.ts';
+import { mintDeckPair } from './rosterDecks.ts';
 import { Setup } from './screens/Setup.tsx';
 import { PassGate } from './components/PassGate.tsx';
 import { GarrisonPhase } from './screens/GarrisonPhase.tsx';
@@ -23,24 +23,15 @@ export function V2App() {
 
   function startMatch() {
     const r = mulberry32(seed);
-    // Cowork 41895397 walked back the ~15 ask: accept full starter 9 each as the
-    // v0.2 deck. We only move toward ~15 (from the 130 roster) once generateCard
-    // exists and we have more distinct cards; duplicates with replacement are too
-    // cheap. So each player gets the full starter 9, shuffled independently.
-    const p1Deck = shuffleWith(STARTER_8_PLUS.slice(), r);
-    const p2Deck = shuffleWith(STARTER_8_PLUS.slice(), r);
+    // Cowork e0a4beac (overriding 41895397's reconcile): each player gets a
+    // DISJOINT deck of ~13 critters dealt from the full 130-roster pool. No
+    // creature name appears on both sides — "your critters vs their creatures"
+    // is now literally true. Tags + abilities are heuristically derived from
+    // class/archetype (see rosterDecks.ts) until generateCard lands.
+    const { p1Deck, p2Deck } = mintDeckPair(r, 13);
     const fresh = newGame({ p1Deck, p2Deck, rand: r });
     setGame(fresh);
     setPhase({ kind: 'pass-to-garrison', player: 'p1' });
-  }
-
-  function shuffleWith<T>(arr: T[], rand: () => number): T[] {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rand() * (i + 1));
-      [a[i], a[j]] = [a[j]!, a[i]!];
-    }
-    return a;
   }
 
 
