@@ -172,14 +172,25 @@ export type GameEvent =
       t: 'strike-result';
       attacker: PlayerId; defender: PlayerId;
       arena: number;
-      winner: PlayerId | 'tie';
-      aHits: number; bHits: number;
+      // v0.3 multi-round bout outcomes:
+      //   - winner: 'attacker' | 'defender' (single survivor)
+      //   - 'tie' = bout reached the 12-round safety cap without a KO (rare)
+      //   - 'draw' = both hit 0 the same round (mutual destruction)
+      winner: PlayerId | 'tie' | 'draw';
+      aHits: number; bHits: number;            // hits in the FINAL round (back-compat for commentary)
       burned: string[];
       bannerOwner: PlayerId | null;
       aceBurned: boolean;
-      legLog: string[];
-      // For Cassius commentary (spec §2.1 CommentateInput): attacker + defender
-      // identity + tags + stats. Defender null for empty-arena strikes.
+      legLog: string[];                         // human-readable per-round log
+      // v0.3: per-round structured outcomes for Cassius narration.
+      rounds: Array<{
+        round: number;
+        aHits: number; bHits: number;
+        aStaminaAfter: number; bStaminaAfter: number;
+        roundWinner: PlayerId | 'tie';
+      }>;
+      roundsFought: number;
+      // For Cassius commentary: attacker + defender identity + tags + stats.
       attackerName: string; attackerTags: Tag[]; attackerMight: number; attackerStamina: number;
       defenderName: string | null; defenderTags: Tag[] | null;
     }

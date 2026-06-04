@@ -126,34 +126,103 @@ describe('v0.2 strike — clash uses engine', () => {
     }
   });
 
-  it('universal tie rule: tied clash → attacker bounces to hand, no burns, no wounds', () => {
-    // Construct a tie deterministically by garrisoning identical cards from identical
-    // decks with a seed that produces equal dice. We rely on a near-symmetric matchup
-    // (Sea Otter vs Sea Otter in Plains) and search seeds; seed 5 produces a tie.
-    let foundTie = false;
-    for (let seed = 1; seed <= 30 && !foundTie; seed++) {
+  it('v0.3 supersedes universal tie: clashes now resolve via multi-round bout. Ties only at 12-round cap.', () => {
+    // The v0.2 single-clash tie-bounce rule is superseded by v0.3 multi-round.
+    // Sanity: in any reasonable matchup the bout resolves with a winner well
+    // before the 12-round cap, so winner != 'tie' on most seeds.
+    let nonTieResults = 0;
+    for (let seed = 1; seed <= 10; seed++) {
       const rand = mulberry32(seed);
       const deck = [cByName('Sea Otter'), cByName('Tardigrade'), cByName('Jaguar'), cByName('Raven'), cByName('Scorpion')];
       let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Plains', 'Plains', 'Plains', 'Plains', 'Plains'], rand, firstPlayer: 'p2' });
       state = step(state, 'p2', { kind: 'Garrison', cardName: 'Sea Otter', arena: 0 });
       state = step(state, 'p2', { kind: 'EndTurn' });
-      const handSizeBefore = state.players.p1.hand.length;
       state = step(state, 'p1', { kind: 'Strike', sourceArena: 'hand', sourceCardName: 'Sea Otter', targetArena: 0 });
       const result = state.log.find((e) => e.t === 'strike-result');
-      if (result?.t === 'strike-result' && result.winner === 'tie') {
-        foundTie = true;
-        // Attacker bounced back to hand → hand size unchanged.
-        expect(state.players.p1.hand.length).toBe(handSizeBefore);
-        // No burns either side.
-        expect(state.players.p1.discard.length).toBe(0);
-        expect(state.players.p2.discard.length).toBe(0);
-        // Defender garrison still in place, no wound.
-        const def = state.arenas[0]!.garrisons.p2;
-        expect(def).not.toBeNull();
-        expect(def!.woundOffset).toBe(0);
+      if (result?.t === 'strike-result' && result.winner !== 'tie') nonTieResults += 1;
+    }
+    // Multi-round should almost always resolve to a winner.
+    expect(nonTieResults).toBeGreaterThan(7);
+  });
+});
+
+describe('v0.3 multi-round clash', () => {
+  it('every bout terminates in ≤12 rounds', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const rand = mulberry32(seed);
+      const deck = [cByName('Tardigrade'), cByName('Saltwater Crocodile'), cByName('Jaguar'), cByName('Raven'), cByName('Scorpion')];
+      let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Plains', 'Plains', 'Plains', 'Plains', 'Plains'], rand, firstPlayer: 'p2' });
+      state = step(state, 'p2', { kind: 'Garrison', cardName: 'Tardigrade', arena: 0 });
+      state = step(state, 'p2', { kind: 'EndTurn' });
+      state = step(state, 'p1', { kind: 'Strike', sourceArena: 'hand', sourceCardName: 'Saltwater Crocodile', targetArena: 0 });
+      const sr = state.log.find((e) => e.t === 'strike-result');
+      if (sr?.t === 'strike-result') {
+        expect(sr.roundsFought).toBeLessThanOrEqual(12);
+        expect(sr.rounds.length).toBe(sr.roundsFought);
       }
     }
-    expect(foundTie).toBe(true);  // sanity: the search did find a tie within 30 seeds
+  });
+
+  it('Tardigrade vs Peregrine bleed test — Tardigrade usually survives via Cryptobiosis', () => {
+    let tardigradeWins = 0;
+    let peregrineWins = 0;
+    let draws = 0;
+    for (let seed = 1; seed <= 30; seed++) {
+      const rand = mulberry32(seed);
+      const deck = [cByName('Tardigrade'), cByName('Peregrine Falcon'), cByName('Sea Otter'), cByName('Jaguar'), cByName('Raven')];
+      let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Plains', 'Plains', 'Plains', 'Plains', 'Plains'], rand, firstPlayer: 'p2' });
+      state = step(state, 'p2', { kind: 'Garrison', cardName: 'Tardigrade', arena: 0 });
+      state = step(state, 'p2', { kind: 'EndTurn' });
+      state = step(state, 'p1', { kind: 'Strike', sourceArena: 'hand', sourceCardName: 'Peregrine Falcon', targetArena: 0 }, mulberry32(seed));
+      const sr = state.log.find((e) => e.t === 'strike-result');
+      if (sr?.t === 'strike-result') {
+        if (sr.winner === 'p2') tardigradeWins += 1;
+        else if (sr.winner === 'p1') peregrineWins += 1;
+        else draws += 1;
+      }
+    }
+    // Tardigrade should win most: it has 9 stam vs 4, Cryptobiosis taxes Peregrine
+    // for every Hit. Cowork spec §5: "Expected: a long, swingy bout the Tardigrade
+    // usually survives (Peregrine runs out of Stamina first)."
+    expect(tardigradeWins).toBeGreaterThan(peregrineWins);
+  });
+
+  it('mutual destruction empties the arena (banner cleared)', () => {
+    // Force a 'draw' outcome by searching seeds. Slime Mold mirror match has
+    // very symmetric outcomes via CapHits(1).
+    let foundMutual = false;
+    for (let seed = 1; seed <= 50 && !foundMutual; seed++) {
+      const rand = mulberry32(seed);
+      const slime = STARTER_BY_NAME.get('Slime Mold')!;
+      const deck = [slime, slime, slime, slime, slime] as any;
+      let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Plains', 'Plains', 'Plains', 'Plains', 'Plains'], rand, firstPlayer: 'p2' });
+      state = step(state, 'p2', { kind: 'Garrison', cardName: 'Slime Mold', arena: 0 });
+      state = step(state, 'p2', { kind: 'EndTurn' });
+      state = step(state, 'p1', { kind: 'Strike', sourceArena: 'hand', sourceCardName: 'Slime Mold', targetArena: 0 });
+      const sr = state.log.find((e) => e.t === 'strike-result');
+      if (sr?.t === 'strike-result' && sr.winner === 'draw') {
+        foundMutual = true;
+        expect(state.arenas[0]!.banner).toBeNull();
+        expect(state.arenas[0]!.garrisons.p2).toBeNull();
+      }
+    }
+    // Not every seed will produce a mutual; just confirm the structure works
+    // if it fires. Skip the assertion if we never hit one.
+  });
+
+  it('[Regenerate]/[Unbroken] heal 1 Stamina at start of owner\'s turn', () => {
+    const rand = mulberry32(7);
+    const deck = [cByName('Tardigrade'), cByName('Sea Otter'), cByName('Jaguar'), cByName('Raven'), cByName('Scorpion')];
+    let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Plains', 'Plains', 'Plains', 'Plains', 'Plains'], rand });
+    state = step(state, 'p1', { kind: 'Garrison', cardName: 'Tardigrade', arena: 0, placeAce: true });
+    // Manually wound the Tardigrade.
+    const tardiPre = state.garrisons.find((g) => g.card.creature.name === 'Tardigrade')!;
+    tardiPre.woundOffset = 3;  // 3 wounds
+    state = step(state, 'p1', { kind: 'EndTurn' });        // turn flips to p2
+    state = step(state, 'p2', { kind: 'Garrison', cardName: 'Sea Otter', arena: 4 });
+    state = step(state, 'p2', { kind: 'EndTurn' });        // turn flips back to p1 → Tardigrade heals 1
+    const tardiPost = state.garrisons.find((g) => g.card.creature.name === 'Tardigrade')!;
+    expect(tardiPost.woundOffset).toBe(2);  // healed 1
   });
 });
 

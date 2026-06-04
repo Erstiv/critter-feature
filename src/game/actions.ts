@@ -336,6 +336,17 @@ function applyEndTurn(state: GameState, player: PlayerId): ApplyResult {
   // Refill the free-sniff per-turn bonus for the player whose turn STARTS next.
   refillFreeSniffs(ns, ns.activePlayer);
 
+  // v0.3 healing — at the start of a player's turn, their critters with
+  // [Regenerate] or [Unbroken] heal 1 Stamina (capped at card stamina).
+  // Cowork e02f0692: this is what makes the Tardigrade a wall.
+  for (const g of ns.garrisons) {
+    if (g.owner !== ns.activePlayer) continue;
+    const tags = g.card.creature.tags;
+    if (tags.includes('Regenerate') || tags.includes('Unbroken')) {
+      g.woundOffset = Math.max(0, g.woundOffset - 1);
+    }
+  }
+
   ns.log.push({ t: 'turn-start', player: ns.activePlayer, turnNumber: ns.turn });
   return { ok: true, state: ns };
 }

@@ -125,6 +125,8 @@ export function applyStrike(
       bannerOwner: attacker,
       aceBurned: false,
       legLog: ['empty arena — banner planted'],
+      rounds: [],
+      roundsFought: 0,
       attackerName: attackingGarrison.card.creature.name,
       attackerTags: attackingGarrison.card.creature.tags,
       attackerMight: attackingGarrison.card.might,
@@ -151,19 +153,6 @@ export function applyStrike(
     (defenderDugIn ? ns.config.dugInDiceBonus : 0) +
     (defenderGarr.isAce ? ns.config.aceDieBonus : 0);
 
-  const out = resolveLeg({
-    a: attackerCard,
-    b: defenderCard,
-    biome: targetArena.biome,
-    challenger: 'a',     // attacker is the Challenger this strike
-    aStartStamina: attackerCard.stamina,
-    bStartStamina: defenderCard.stamina,
-    aFiredThisBout: new Set(),
-    bFiredThisBout: new Set(),
-    bDugInDice: defenderBonusDice,
-    rand,
-  });
-
   ns.log.push({
     t: 'strike',
     attacker, defender, arena: action.targetArena,
@@ -171,46 +160,124 @@ export function applyStrike(
     defenderName: defenderGarr.card.creature.name,
   });
 
-  let winnerSide: PlayerId | 'tie';
+  // v0.3 MULTI-ROUND CLASH (cowork e02f0692 / spec
+  // CritterFeature_v0.3_MultiRound_Clash_Spec.md). Bout fought round-by-round
+  // until KO, mutual destruction, or 12-round safety cap.
+  const ROUND_CAP = 12;
+  const aFired = new Set<string>();
+  const bFired = new Set<string>();
+  let aStamina = attackerCard.stamina;
+  let bStamina = defenderCard.stamina;
+  const rounds: Array<{ round: number; aHits: number; bHits: number; aStaminaAfter: number; bStaminaAfter: number; roundWinner: PlayerId | 'tie' }> = [];
+  const legLog: string[] = [];
+  let outcome: 'attacker-ko' | 'defender-ko' | 'mutual' | 'cap' = 'cap';
+
+  for (let r = 1; r <= ROUND_CAP; r++) {
+    const out = resolveLeg({
+      a: { ...attackerCard, stamina: aStamina },
+      b: { ...defenderCard, stamina: bStamina },
+      biome: targetArena.biome,
+      challenger: 'a',
+      aStartStamina: aStamina,
+      bStartStamina: bStamina,
+      aFiredThisBout: aFired,
+      bFiredThisBout: bFired,
+      bDugInDice: defenderBonusDice,
+      rand,
+    });
+    legLog.push(`-- round ${r} --`);
+    legLog.push(...out.result.log);
+
+    // resolveLeg returns aStaminaDelta/bStaminaDelta that already include the
+    // -1 round-loser wound + any per-effect drain (Cryptobiosis StaminaTax,
+    // etc.). For v0.3 we want stronger: round loser loses Stamina = hit MARGIN.
+    // The engine's old delta was margin-agnostic (-1), so we apply our own
+    // post-resolveLeg adjustment based on the hits.
+    const aHits = out.result.aHits;
+    const bHits = out.result.bHits;
+    let roundWinner: PlayerId | 'tie';
+    if (aHits > bHits) {
+      const margin = Math.max(1, aHits - bHits);
+      bStamina -= margin;
+      roundWinner = attacker;
+    } else if (bHits > aHits) {
+      const margin = Math.max(1, bHits - aHits);
+      aStamina -= margin;
+      roundWinner = defender;
+    } else {
+      // Tie / clinch: both -1 (the round's "wound to each").
+      aStamina -= 1;
+      bStamina -= 1;
+      roundWinner = 'tie';
+    }
+    // Apply additional per-effect drain (StaminaTax etc.) that resolveLeg
+    // computed on top of its old -1 wound — the engine returned the delta
+    // including that -1, so we subtract 1 to isolate the "extra" tax.
+    const aExtra = out.result.aStaminaDelta - (aHits < bHits ? -1 : (aHits === bHits ? -1 : 0));
+    const bExtra = out.result.bStaminaDelta - (bHits < aHits ? -1 : (aHits === bHits ? -1 : 0));
+    aStamina += aExtra;
+    bStamina += bExtra;
+    aStamina = Math.max(-99, aStamina);
+    bStamina = Math.max(-99, bStamina);
+    rounds.push({ round: r, aHits, bHits, aStaminaAfter: Math.max(0, aStamina), bStaminaAfter: Math.max(0, bStamina), roundWinner });
+    legLog.push(`   stamina after: ${attackingGarrison.card.creature.name}=${Math.max(0,aStamina)} ${defenderGarr.card.creature.name}=${Math.max(0,bStamina)}`);
+
+    const aDead = aStamina <= 0;
+    const bDead = bStamina <= 0;
+    if (aDead && bDead) { outcome = 'mutual'; break; }
+    if (aDead) { outcome = 'attacker-ko'; break; }   // attacker (a) died → defender wins
+    if (bDead) { outcome = 'defender-ko'; break; }   // defender (b) died → attacker wins
+  }
+
+  const lastRound = rounds[rounds.length - 1]!;
+  // Persist wounds on the survivor (if any). Wounds = card stamina - current.
+  let winnerSide: PlayerId | 'tie' | 'draw';
+  if (outcome === 'attacker-ko') {
+    // Attacker dead → DEFENDER wins. Defender carries accumulated wounds.
+    winnerSide = defender;
+    defenderGarr.woundOffset = defenderGarr.card.stamina - Math.max(0, bStamina);
+  } else if (outcome === 'defender-ko') {
+    // Defender dead → ATTACKER wins. Attacker carries accumulated wounds.
+    winnerSide = attacker;
+    attackingGarrison.woundOffset = attackingGarrison.card.stamina - Math.max(0, aStamina);
+  } else if (outcome === 'mutual') {
+    winnerSide = 'draw';
+  } else {
+    // 12-round cap → DRAW by exhaustion: attacker retreats, defender holds, both wounded.
+    winnerSide = 'tie';
+    defenderGarr.woundOffset = defenderGarr.card.stamina - Math.max(0, bStamina);
+    attackingGarrison.woundOffset = attackingGarrison.card.stamina - Math.max(0, aStamina);
+  }
+
   let burnedNames: string[] = [];
   let aceBurned = false;
   let bannerOwner: PlayerId | null = ns.arenas[action.targetArena]!.banner;
 
-  if (out.result.aHits > out.result.bHits) {
-    winnerSide = attacker;
-  } else if (out.result.bHits > out.result.aHits) {
-    winnerSide = defender;
-  } else {
-    // Universal tie rule (cowork ce5b3456 Q1): attacker bounces back to source,
-    // defender holds, NEITHER is wounded.
-    winnerSide = 'tie';
-  }
+  // Build a fake `out` object so the existing post-resolution code below can use
+  // aHits/bHits + log without further surgery. winnerSide is set above.
+  const out = { result: { aHits: lastRound.aHits, bHits: lastRound.bHits, log: legLog, aStaminaDelta: 0, bStaminaDelta: 0 } };
 
   if (winnerSide === attacker) {
-    // Defender burns.
+    // Defender burns. Wound on the surviving attacker is already accumulated
+    // from the round-by-round bleed (woundOffset set above to reflect remaining
+    // stamina), so no additional +1 wound.
     const burnInfo = burnGarrison(ns, defenderGarr);
     burnedNames.push(defenderGarr.card.creature.name);
     if (burnInfo.aceBurned) aceBurned = true;
-    // Place attacker (if from hand) into the arena; if from garrison, attacker is now there.
     if (action.sourceArena === 'hand') {
       ns.garrisons.push(attackingGarrison);
       ns.arenas[action.targetArena]!.garrisons[attacker] = attackingGarrison;
     } else {
-      // attackingGarrison already updated above with arena = targetArena
       const existing = ns.garrisons.find((x) => x.id === attackingGarrison.id);
       if (existing) {
         ns.arenas[action.targetArena]!.garrisons[attacker] = existing;
-        existing.woundOffset += ns.config.winnerWoundsPerStrike;
       }
-    }
-    if (action.sourceArena === 'hand') {
-      attackingGarrison.woundOffset += ns.config.winnerWoundsPerStrike;
     }
     ns.arenas[action.targetArena]!.banner = attacker;
     ns.arenas[action.targetArena]!.bannerProvenance = 'strike';
     bannerOwner = attacker;
   } else if (winnerSide === defender) {
-    // Attacker burns.
+    // Attacker burns. Defender's wound accumulated from rounds.
     if (action.sourceArena !== 'hand') {
       const existing = ns.garrisons.find((x) => x.id === attackingGarrison.id);
       if (existing) {
@@ -219,37 +286,46 @@ export function applyStrike(
         if (info.aceBurned) aceBurned = true;
       }
     } else {
-      // hand-source attacker that lost → goes to discard.
       ns.players[attacker].discard.push(attackingGarrison.card.creature);
       burnedNames.push(attackingGarrison.card.creature.name);
     }
-    // Defender keeps arena. They survived a strike — the banner becomes
-    // strike-won regardless of how it was originally planted (Cowork e0521df3:
-    // "A strike that flips an arena you already auto-held should mark that
-    // banner strike-won." Same applies to defender keeping their own arena
-    // through a successful defense).
     if (ns.arenas[action.targetArena]!.banner === null) ns.arenas[action.targetArena]!.banner = defender;
     if (ns.arenas[action.targetArena]!.banner === defender) {
       ns.arenas[action.targetArena]!.bannerProvenance = 'strike';
     }
-    defenderGarr.woundOffset += ns.config.winnerWoundsPerStrike;
     bannerOwner = ns.arenas[action.targetArena]!.banner;
+  } else if (winnerSide === 'draw') {
+    // v0.3 mutual destruction: both hit 0 in the same round. Both burn, arena
+    // cleared (including any banner).
+    const defInfo = burnGarrison(ns, defenderGarr);
+    burnedNames.push(defenderGarr.card.creature.name);
+    if (defInfo.aceBurned) aceBurned = true;
+    if (action.sourceArena !== 'hand') {
+      const existing = ns.garrisons.find((x) => x.id === attackingGarrison.id);
+      if (existing) {
+        burnedNames.push(existing.card.creature.name);
+        const info = burnGarrison(ns, existing);
+        if (info.aceBurned) aceBurned = true;
+      }
+    } else {
+      ns.players[attacker].discard.push(attackingGarrison.card.creature);
+      burnedNames.push(attackingGarrison.card.creature.name);
+    }
+    ns.arenas[action.targetArena]!.banner = null;
+    ns.arenas[action.targetArena]!.bannerProvenance = null;
+    bannerOwner = null;
   } else {
-    // TIE — universal bounce. No burns, no wounds.
+    // 12-round cap — draw by exhaustion. Attacker retreats to source, defender
+    // holds. Both keep their accumulated wounds (set above).
     if (action.sourceArena === 'hand') {
-      // Attacker returns the card to hand (the strike action consumed it; restore it).
       ns.players[attacker].hand.push(attackingGarrison.card.creature);
     } else {
-      // Attacker garrison bounces back to its source arena.
       const existing = ns.garrisons.find((x) => x.id === attackingGarrison.id);
       if (existing) {
         existing.arena = action.sourceArena;
-        // Hidden status: it was revealed by the strike → stays revealed.
         ns.arenas[action.sourceArena]!.garrisons[attacker] = existing;
       }
     }
-    // Defender stays put. Banner (if it was empty before, it stays empty; if defender
-    // already had one, they keep it). For a contested-and-tied arena, no banner change.
     bannerOwner = ns.arenas[action.targetArena]!.banner;
   }
 
@@ -277,6 +353,8 @@ export function applyStrike(
     bannerOwner,
     aceBurned,
     legLog: out.result.log,
+    rounds,
+    roundsFought: rounds.length,
     attackerName: attackingGarrison.card.creature.name,
     attackerTags: attackingGarrison.card.creature.tags,
     attackerMight: attackingGarrison.card.might,
