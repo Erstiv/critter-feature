@@ -10,9 +10,13 @@
   --accent: #c9b074;
   --danger: #d65450;
   --good: #6fa86d;
+  --marquee-red: #c93a2f;
+  --marquee-gold: #f0c656;
+  --marquee-cream: #f3e9d2;
   --font-display: 'Georgia', 'Iowan Old Style', serif;
   --font-body: -apple-system, system-ui, 'Helvetica Neue', sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  --font-marquee: 'Georgia', 'Bodoni Moda', 'Iowan Old Style', serif;
 }
 
 * { box-sizing: border-box; }
@@ -32,18 +36,93 @@ body {
   padding: 24px 20px 48px;
 }
 
-.title {
+.marquee {
+  background: linear-gradient(180deg, #2a1810 0%, #1a0e08 100%);
+  border-top: 4px double var(--marquee-gold);
+  border-bottom: 4px double var(--marquee-gold);
+  padding: 22px 24px 28px;
+  margin: 0 -20px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.marquee::before,
+.marquee::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--marquee-gold);
+  opacity: 0.4;
+}
+.marquee::before { left: 12px; }
+.marquee::after { right: 12px; }
+
+.marquee-eyebrow {
+  font-family: var(--font-marquee);
+  font-size: 12px;
+  letter-spacing: 6px;
+  color: var(--marquee-gold);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.marquee-eyebrow span {
+  display: inline-block;
+  padding: 0 12px;
+}
+
+.marquee-eyebrow .star {
+  color: var(--marquee-red);
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.marquee-title {
+  font-family: var(--font-marquee);
+  font-size: 58px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--marquee-cream);
+  margin: 4px 0 8px;
+  line-height: 0.95;
+  text-shadow: 2px 2px 0 var(--marquee-red), 4px 4px 0 rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+}
+
+.marquee-bill {
+  font-family: var(--font-marquee);
+  font-size: 16px;
+  color: var(--marquee-cream);
+  letter-spacing: 1.5px;
+  margin: 8px 0 0;
+  text-transform: uppercase;
+}
+
+.marquee-bill .vs {
+  color: var(--marquee-red);
+  font-style: italic;
+  font-weight: 700;
+  padding: 0 14px;
   font-family: var(--font-display);
-  font-size: 28px;
-  margin: 0 0 4px;
   letter-spacing: 0.5px;
 }
 
-.subtitle {
-  color: var(--ink-dim);
-  font-style: italic;
-  margin: 0 0 28px;
-  font-size: 13px;
+.marquee-bill .name {
+  color: var(--marquee-gold);
+  font-weight: 700;
+}
+
+.marquee-foot {
+  font-family: var(--font-marquee);
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--marquee-gold);
+  opacity: 0.75;
+  margin: 14px 0 0;
+  text-transform: uppercase;
 }
 
 .match {
@@ -280,10 +359,30 @@ button.ghost {
 .ability-prompt button { margin-left: 8px; }
 
 .koLine {
-  font-family: var(--font-display);
-  color: var(--good);
-  font-size: 18px;
-  padding: 12px 0;
+  font-family: var(--font-marquee);
+  color: var(--marquee-gold);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 18px 20px;
+  margin: 24px 0;
+  text-align: center;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #2a1810 0%, #1a0e08 100%);
+  border-top: 3px double var(--marquee-gold);
+  border-bottom: 3px double var(--marquee-gold);
+  text-shadow: 2px 2px 0 var(--marquee-red), 3px 3px 0 rgba(0, 0, 0, 0.7);
 }
 
+.koLine .winner-name { color: var(--marquee-cream); }
+.koLine .ko-stats {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--marquee-gold);
+  font-weight: 400;
+  margin-top: 6px;
+  text-shadow: none;
+  opacity: 0.85;
+}
 .koLine.loss { color: var(--danger); }

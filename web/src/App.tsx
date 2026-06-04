@@ -42,8 +42,18 @@ export function App() {
 
   return (
     <div className="app">
-      <h1 className="title">Critter Feature</h1>
-      <p className="subtitle">Hot-seat duel — M1 shell. (AI proposes, the engine disposes.)</p>
+      <header className="marquee">
+        <p className="marquee-eyebrow">
+          <span><span className="star">★</span> Tonight's Main <span className="star">★</span></span>
+        </p>
+        <h1 className="marquee-title">Critter Feature</h1>
+        <p className="marquee-bill">
+          <span className="name">{aCreature.name}</span>
+          <span className="vs">vs</span>
+          <span className="name">{bCreature.name}</span>
+        </p>
+        <p className="marquee-foot">Tonight's Bill · One Bout · Best of Three Legs</p>
+      </header>
 
       <div className="match">
         <div>
@@ -83,9 +93,14 @@ export function App() {
         </button>
       </div>
 
-      <div className={`koLine ${result.winType === 'endurance' ? '' : ''}`}>
-        {result.winType === 'endurance' ? '⚡ ENDURANCE KO — ' : '🏆 GLORY — '}
-        {result.winner} wins (final stam {result.aFinalStamina} / {result.bFinalStamina})
+      <div className="koLine">
+        <div>
+          {result.winType === 'endurance' ? '⚡ Endurance KO — ' : '🏆 Glory — '}
+          <span className="winner-name">{result.winner}</span> wins!
+        </div>
+        <span className="ko-stats">
+          Final stamina · {aCreature.name} {result.aFinalStamina} · {bCreature.name} {result.bFinalStamina}
+        </span>
       </div>
 
       <div className="section">
