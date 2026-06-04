@@ -259,8 +259,9 @@ function StrikeModal({ player, game, onCancel, onConfirm }: { player: PlayerId; 
       <div className="v2-modal">
         <h2>Attack</h2>
         <p style={{ fontSize: 12, color: 'var(--ink-dim)' }}>
-          Send a critter at an arena. From hand: card leaves your hand and (if it wins) garrisons the arena. From the board: your critter sallies out and (if it wins) holds the new ground.
-          Loser BURNS. Winner takes the banner.
+          Send a critter at an arena. The fight is <strong style={{color:'var(--accent)'}}>round-by-round</strong> — each round both critters roll their dice; the round-loser bleeds Stamina equal to the hit margin (tie clinch = both lose 1).
+          The bout ends when one creature bleeds to <strong>0 Stamina</strong> (burned — opponent takes the arena), <strong>both bleed to 0 the same round</strong> (mutual destruction — both burn, arena cleared), or <strong>12 rounds</strong> elapse (draw by exhaustion).
+          <em>[Regenerate]</em> / <em>[Unbroken]</em> critters heal 1 Stamina at the start of their owner's turn. Wounds persist across the match.
         </p>
 
         <div className="v2-section-title">Source: from hand</div>

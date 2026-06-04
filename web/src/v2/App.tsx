@@ -192,7 +192,7 @@ function Marquee() {
       <p className="marquee-bill">
         Hide the Tardigrade · 2-player hot-seat
       </p>
-      <p className="marquee-foot">PASS-AND-PLAY · BEST OF FIVE ARENAS · v0.2</p>
+      <p className="marquee-foot">PASS-AND-PLAY · BEST OF FIVE ARENAS · v0.3</p>
     </header>
   );
 }

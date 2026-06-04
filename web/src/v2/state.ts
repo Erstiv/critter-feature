@@ -82,10 +82,22 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
       };
       const narration = strikeCommentary(liveInput, salt);
       const details: string[] = [];
-      if (def !== null) {
-        details.push(`${att} rolled ${resultEv.aHits} hits · ${def} rolled ${resultEv.bHits} hits.`);
+      // v0.3: render the round-by-round bout sequence so multi-round is visible
+      // (cowork e9f2970f). For empty-arena strikes rounds[] is empty.
+      if (def !== null && resultEv.rounds && resultEv.rounds.length > 0) {
+        details.push(`— ${resultEv.roundsFought}-round bout —`);
+        for (const rd of resultEv.rounds) {
+          const aMark = rd.aStaminaAfter <= 0 ? `S${rd.aStaminaAfter} ✗BURNED` : `S${rd.aStaminaAfter}`;
+          const bMark = rd.bStaminaAfter <= 0 ? `S${rd.bStaminaAfter} ✗BURNED` : `S${rd.bStaminaAfter}`;
+          const tag = rd.roundWinner === 'tie' ? ' (clinch)' : (rd.roundWinner === resultEv.attacker ? ` (${att} wins)` : ` (${def} wins)`);
+          details.push(`Round ${rd.round}: ${att} ${rd.aHits} / ${def} ${rd.bHits}${tag} → ${att} ${aMark} · ${def} ${bMark}`);
+        }
       }
-      if (resultEv.burned.length > 0) {
+      if (resultEv.winner === 'draw') {
+        details.push(`💥 MUTUAL DESTRUCTION — both critters burned, the arena is cleared.`);
+      } else if (resultEv.winner === 'tie' && def !== null) {
+        details.push(`⏳ 12-round cap — draw by exhaustion. ${att} retreats; ${def} holds the arena.`);
+      } else if (resultEv.burned.length > 0) {
         details.push(`Burned: ${resultEv.burned.join(', ')}.`);
       }
       if (resultEv.aceBurned) {

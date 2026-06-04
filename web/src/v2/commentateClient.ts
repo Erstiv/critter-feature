@@ -26,6 +26,17 @@ export type CommentateLiveInput = {
   margin: number;
   aceBurned: boolean;
   winCondition: 'glory' | 'endurance' | 'assassination' | null;
+  // v0.3 multi-round bout: per-round outcomes so Cassius can narrate a
+  // blow-by-blow (cowork e9f2970f). Empty for empty-arena strikes.
+  rounds?: Array<{
+    round: number;
+    attackerHits: number;
+    defenderHits: number;
+    attackerStaminaAfter: number;
+    defenderStaminaAfter: number;
+    roundWinner: 'attacker' | 'defender' | 'tie';
+  }>;
+  outcome?: 'attacker-wins' | 'defender-wins' | 'mutual-draw' | 'exhaustion-draw';
 };
 
 // Recent-lines buffer per session — keeps Cassius from repeating in a long match.
@@ -52,21 +63,36 @@ export function commentateStrike(
   salt: number,
 ): { fallback: string; live: Promise<string[] | null> } {
   const fallback = strikeCommentary(input, salt);
+  const result = input.strikeResult;
+  let outcome: CommentateLiveInput['outcome'];
+  if (result.winner === 'draw') outcome = 'mutual-draw';
+  else if (result.winner === 'tie') outcome = 'exhaustion-draw';
+  else if (result.winner === result.attacker) outcome = 'attacker-wins';
+  else outcome = 'defender-wins';
   const liveInput: CommentateLiveInput = {
-    event: classifyEvent({ strikeReq: input.strikeReq, strikeResult: input.strikeResult }),
+    event: classifyEvent({ strikeReq: input.strikeReq, strikeResult: result }),
     attacker: {
-      name: input.strikeResult.attackerName,
-      tags: input.strikeResult.attackerTags ?? [],
-      might: input.strikeResult.attackerMight,
-      stamina: input.strikeResult.attackerStamina,
+      name: result.attackerName,
+      tags: result.attackerTags ?? [],
+      might: result.attackerMight,
+      stamina: result.attackerStamina,
     },
-    loser: input.defenderName ? { name: input.defenderName, tags: input.strikeResult.defenderTags ?? [] } : null,
+    loser: input.defenderName ? { name: input.defenderName, tags: result.defenderTags ?? [] } : null,
     biome: input.biome,
-    hitsFor: input.strikeResult.aHits,
-    hitsAgainst: input.strikeResult.bHits,
-    margin: Math.abs(input.strikeResult.aHits - input.strikeResult.bHits),
-    aceBurned: input.strikeResult.aceBurned,
+    hitsFor: result.aHits,
+    hitsAgainst: result.bHits,
+    margin: Math.abs(result.aHits - result.bHits),
+    aceBurned: result.aceBurned,
     winCondition: null,
+    rounds: result.rounds.map((r) => ({
+      round: r.round,
+      attackerHits: r.aHits,
+      defenderHits: r.bHits,
+      attackerStaminaAfter: r.aStaminaAfter,
+      defenderStaminaAfter: r.bStaminaAfter,
+      roundWinner: r.roundWinner === 'tie' ? 'tie' : (r.roundWinner === result.attacker ? 'attacker' : 'defender'),
+    })),
+    outcome,
   };
   const live = fetchLive(liveInput, recentLines.slice());
   return { fallback, live };

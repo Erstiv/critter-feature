@@ -86,6 +86,26 @@ function buildPrompt(input, recentLines) {
   const fewShotBlock = fewShots.length
     ? `\n\nVoice examples (use the same register; substitute the real critter and biome):\n${fewShots.map((l) => `- ${l}`).join('\n')}`
     : '';
+
+  // v0.3 (cowork e9f2970f): if the bout was multi-round, tell Cassius to call
+  // it blow-by-blow — one beat per significant round/swing — instead of one
+  // summary line. The rounds[] array carries the per-round data.
+  const rounds = Array.isArray(input.rounds) ? input.rounds : [];
+  const isMultiRound = rounds.length >= 2;
+  let roundsBlock = '';
+  let outcomeLine = '';
+  if (isMultiRound) {
+    const att = input.attacker.name;
+    const def = input.loser ? input.loser.name : '(empty arena)';
+    const beatCount = Math.min(rounds.length, 5);  // cap so it stays readable
+    roundsBlock = `\n\nThe bout went ${rounds.length} rounds — narrate it as a blow-by-blow, ONE short beat per significant round (or two adjacent rounds if you need to compress). The round-by-round:\n${rounds.map((r) => `- R${r.round}: ${att} ${r.attackerHits} hits / ${def} ${r.defenderHits} hits → ${att} S${r.attackerStaminaAfter} · ${def} S${r.defenderStaminaAfter} ${r.roundWinner === 'tie' ? '(clinch — both bleed 1)' : r.roundWinner === 'attacker' ? '(' + att + ' wins the round)' : '(' + def + ' wins the round)'}`).join('\n')}\n\nWrite up to ${beatCount} lines.`;
+    if (input.outcome === 'mutual-draw') outcomeLine = `Final: MUTUAL DESTRUCTION — both ${att} and ${def} burn at the same instant in the ${input.biome}.`;
+    else if (input.outcome === 'exhaustion-draw') outcomeLine = `Final: 12-round cap — DRAW BY EXHAUSTION. ${att} retreats; ${def} holds the ${input.biome}.`;
+    else if (input.outcome === 'attacker-wins') outcomeLine = `Final: ${att} bleeds ${def} dry. ${def} burns; ${att} takes the ${input.biome}.`;
+    else if (input.outcome === 'defender-wins') outcomeLine = `Final: ${def} outlasts. ${att} burns; ${def} holds the ${input.biome}.`;
+    outcomeLine = '\n\n' + outcomeLine + ' Never contradict the winner.';
+  }
+
   return `${SYSTEM_PROMPT}${fewShotBlock}
 
 Call this fight:
@@ -93,9 +113,9 @@ Call this fight:
 - Loser: ${input.loser ? input.loser.name + ' (tags: ' + (input.loser.tags || []).join(', ') + ')' : '(empty arena)'}
 - Biome: ${input.biome}
 - Hits: ${input.hitsFor} for the attacker, ${input.hitsAgainst} against (margin ${input.margin})
-- Event: ${input.event}${input.aceBurned ? ' — ACE BURNED' : ''}${input.winCondition ? ' — match-end by ' + input.winCondition : ''}${recentBlock}
+- Event: ${input.event}${input.aceBurned ? ' — ACE BURNED' : ''}${input.winCondition ? ' — match-end by ' + input.winCondition : ''}${roundsBlock}${outcomeLine}${recentBlock}
 
-Write 1-3 short beats (one per line, plain text, no markdown, each ≤30 words). The attacker won — never contradict that.`;
+${isMultiRound ? `Output one beat per line, plain text, no markdown, each ≤30 words. Cover the arc — early swings, momentum shifts, the kill (or mutual death). NAME the round when relevant.` : `Write 1-3 short beats (one per line, plain text, no markdown, each ≤30 words). The attacker won — never contradict that.`}`;
 }
 
 async function callXAI(prompt) {
@@ -110,7 +130,7 @@ async function callXAI(prompt) {
       { role: 'user', content: prompt },
     ],
     temperature: 0.9,
-    max_tokens: 240,
+    max_tokens: 500,  // v0.3: bouts can run 6+ rounds, so up to 5 beats need room
   };
   const resp = await fetch(XAI_ENDPOINT, {
     method: 'POST',
@@ -178,7 +198,7 @@ app.post('/api/commentate', async (req, res) => {
       .split('\n')
       .map((l) => l.replace(/^[\s\-\*•>]+/, '').trim())
       .filter((l) => l.length > 0 && l.length < 280)
-      .slice(0, 3);
+      .slice(0, 6);  // v0.3 multi-round bouts can return up to ~5 round beats + an outcome
     if (lines.length === 0) {
       return res.status(502).json({ error: 'empty response' });
     }
