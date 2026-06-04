@@ -22,11 +22,24 @@ export function V2App() {
 
   function startMatch() {
     const r = mulberry32(seed);
-    // Both players get the full starter 9 as their deck (same pool, shuffled separately).
-    const deck = STARTER_8_PLUS.slice();
-    const fresh = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), rand: r });
+    // Split the starter pool so each player gets unique critters — no more both
+    // players having a Saltwater Croc in their hand. (Elliot's feedback 2026-06-04.)
+    const shuffled = shuffleWith(STARTER_8_PLUS.slice(), r);
+    const half = Math.floor(shuffled.length / 2);
+    const p1Deck = shuffled.slice(0, half);
+    const p2Deck = shuffled.slice(half, half * 2);
+    const fresh = newGame({ p1Deck, p2Deck, rand: r });
     setGame(fresh);
     setPhase({ kind: 'pass-to-garrison', player: 'p1' });
+  }
+
+  function shuffleWith<T>(arr: T[], rand: () => number): T[] {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [a[i], a[j]] = [a[j]!, a[i]!];
+    }
+    return a;
   }
 
   function dispatch(player: PlayerId, action: Action): boolean {

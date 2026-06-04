@@ -1,6 +1,7 @@
 // Top-level state machine for the v0.2 hot-seat UI.
 import type { GameState, PlayerId, Action, GameEvent } from '../../../src/game/index.ts';
 import { applyAction, playerView } from '../../../src/game/index.ts';
+import { strikeCommentary } from './commentary.ts';
 
 export type Phase =
   | { kind: 'setup' }
@@ -65,20 +66,28 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
       const resultEv = newEvents.find((e) => e.t === 'strike-result');
       if (strikeEv?.t !== 'strike' || resultEv?.t !== 'strike-result') return { title: 'Strike', body: [] };
       const att = strikeEv.attackerName;
-      const def = strikeEv.defenderName ?? '(empty arena)';
-      const lines: string[] = [`${att} vs ${def} in arena ${strikeEv.arena + 1}.`];
-      if (def === '(empty arena)') {
-        lines.push(`Banner planted uncontested.`);
-        return { title: 'Strike', body: lines, flavor: 'good' };
+      const def = strikeEv.defenderName;
+      const arenaBiome = _state.arenas[strikeEv.arena]!.biome;
+      const lines: string[] = [];
+      const salt = (resultEv.aHits + 1) * 17 + (resultEv.bHits + 1) * 23 + strikeEv.arena * 31 + _state.log.length;
+      // Cassius-Vane-adjacent narrative line. Placeholder voice; cowork will replace.
+      lines.push(strikeCommentary({
+        strikeReq: strikeEv,
+        strikeResult: resultEv,
+        biome: arenaBiome,
+        attackerName: att,
+        defenderName: def,
+      }, salt));
+      if (def !== null) {
+        lines.push(`(${att} ${resultEv.aHits} hits · ${def} ${resultEv.bHits} hits — ${arenaBiome})`);
       }
-      lines.push(`Dice: ${resultEv.aHits} hits — ${resultEv.bHits} hits.`);
-      if (resultEv.winner === 'tie') {
-        lines.push(`Tie → attacker bounces back, defender holds.`);
-        return { title: 'Strike', body: lines, flavor: 'neutral' };
-      }
-      lines.push(`${resultEv.winner === asker ? 'You' : 'Opponent'} wins. Burned: ${resultEv.burned.join(', ')}.`);
-      if (resultEv.aceBurned) lines.push(`🦂 ACE BURNED — full reveal + free banner.`);
-      return { title: 'Strike', body: lines, flavor: resultEv.aceBurned ? 'spectacle' : (resultEv.winner === asker ? 'good' : 'bad') };
+      const flavor = resultEv.aceBurned
+        ? 'spectacle'
+        : (resultEv.winner === asker ? 'good' : (resultEv.winner === 'tie' ? 'neutral' : 'bad'));
+      const title = resultEv.aceBurned
+        ? '🦂 Assassination'
+        : (resultEv.winner === 'tie' ? 'Bounce' : (def === null ? 'Banner planted' : 'Strike'));
+      return { title, body: lines, flavor };
     }
     case 'Redeploy': {
       return { title: 'Redeployed', body: [`Moved garrison; Dug-In bonus lost.`], flavor: 'neutral' };

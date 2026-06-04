@@ -51,26 +51,57 @@ export function Turn({ player, game, onAction }: Props) {
       <HandStrip hand={view.myHand} />
 
       <div className="v2-section">
-        <div className="v2-section-title">Action — pick one</div>
+        <div className="v2-section-title">
+          {game.actionTakenThisTurn ? 'Action taken — end turn or call a bluff' : 'Action — pick one (you get ONE main action per turn)'}
+        </div>
         <div className="v2-actions">
-          <button onClick={() => setModal({ kind: 'garrison' })} disabled={view.myHand.length === 0 || game.actionTakenThisTurn}>
-            Garrison
-          </button>
-          <button onClick={() => setModal({ kind: 'scout' })} disabled={game.actionTakenThisTurn}>
-            Scout
-          </button>
-          <button onClick={() => setModal({ kind: 'strike' })} disabled={game.actionTakenThisTurn}>
-            Strike
-          </button>
-          <button onClick={() => setModal({ kind: 'redeploy' })} disabled={view.myGarrisons.length === 0 || game.actionTakenThisTurn}>
-            Redeploy
-          </button>
-          <button onClick={() => setModal({ kind: 'call' })} className="ghost">
-            Call a bluff (free)
-          </button>
-          <button onClick={() => onAction({ kind: 'EndTurn' })} disabled={!game.actionTakenThisTurn}>
-            End turn
-          </button>
+          <button
+            onClick={() => setModal({ kind: 'garrison' })}
+            disabled={view.myHand.length === 0 || game.actionTakenThisTurn}
+            title={
+              game.actionTakenThisTurn ? 'Already used your main action this turn'
+              : view.myHand.length === 0 ? 'No critters in hand'
+              : 'Place a critter face-down in an empty arena. Optionally declare its name (truth OR bluff).'
+            }
+          >Garrison</button>
+          <button
+            onClick={() => setModal({ kind: 'scout' })}
+            disabled={game.actionTakenThisTurn}
+            title={
+              game.actionTakenThisTurn ? 'Already used your main action this turn'
+              : 'Spend scout tokens to learn what an opponent garrison is. Sniff (1 tag), Probe (yes/no), or Deep Scout (full card).'
+            }
+          >Scout</button>
+          <button
+            onClick={() => setModal({ kind: 'strike' })}
+            disabled={game.actionTakenThisTurn}
+            title={
+              game.actionTakenThisTurn ? 'Already used your main action this turn'
+              : 'Attack an arena. From hand: ANY arena. From a garrison: only an adjacent arena. Loser burns; winner takes the banner.'
+            }
+          >Strike</button>
+          <button
+            onClick={() => setModal({ kind: 'redeploy' })}
+            disabled={view.myGarrisons.length === 0 || game.actionTakenThisTurn}
+            title={
+              view.myGarrisons.length === 0 ? 'No garrisons to move'
+              : game.actionTakenThisTurn ? 'Already used your main action this turn'
+              : 'Move one of your garrisons to an empty adjacent arena. This strips the Dug-In bonus.'
+            }
+          >Redeploy</button>
+          <button
+            onClick={() => setModal({ kind: 'call' })}
+            className="ghost"
+            title="Free, public, risky. If they lied → that garrison burns. If truth → you lose a scout token + reveal one of yours."
+          >Call a bluff (free)</button>
+          <button
+            onClick={() => onAction({ kind: 'EndTurn' })}
+            disabled={!game.actionTakenThisTurn}
+            title={
+              game.actionTakenThisTurn ? 'Draw a card (up to hand cap 3) and pass the device'
+              : 'You must take an action first'
+            }
+          >End turn</button>
         </div>
       </div>
 
@@ -217,9 +248,12 @@ function StrikeModal({ player, game, onCancel, onConfirm }: { player: PlayerId; 
     <div className="v2-modal-backdrop">
       <div className="v2-modal">
         <h2>Strike</h2>
-        <p style={{ fontSize: 12, color: 'var(--ink-dim)' }}>From hand (any target) or adjacent garrison (linear, |from−to|=1).</p>
+        <p style={{ fontSize: 12, color: 'var(--ink-dim)' }}>
+          <strong style={{ color: 'var(--accent)' }}>From hand:</strong> attack ANY arena. The card leaves your hand and (if it wins) garrisons the arena.<br/>
+          <strong style={{ color: 'var(--accent)' }}>From a garrison:</strong> only an adjacent arena (next column over). Dug-In bonus carries over.
+        </p>
 
-        <div className="v2-section-title">Source: hand</div>
+        <div className="v2-section-title">Source: hand (any target)</div>
         <HandStrip hand={view.myHand} selectedName={source?.kind === 'hand' ? source.cardName : undefined} onSelect={(n) => setSource({ kind: 'hand', cardName: n })} />
 
         {view.myGarrisons.length > 0 && (

@@ -106,18 +106,59 @@
 
 .v2-garrison {
   background: #1d1a17;
-  border: 1px solid var(--rule);
+  border: 2px solid var(--rule);
   border-radius: 3px;
-  padding: 6px 8px;
+  padding: 8px 10px 8px 24px;
   margin: 3px 0;
   font-size: 11px;
   line-height: 1.4;
+  position: relative;
 }
-.v2-garrison.mine { border-color: var(--home); }
-.v2-garrison.opp-revealed { border-color: var(--exposed); }
-.v2-garrison.opp-hidden { border-color: var(--rule); background: #14110e; color: var(--ink-dim); font-style: italic; }
+.v2-garrison.mine {
+  border-color: var(--good);
+  background: #1a2018;
+}
+.v2-garrison.opp-revealed {
+  border-color: var(--danger);
+  background: #201614;
+}
+.v2-garrison.opp-hidden {
+  border-color: #5a3a30;
+  background: #0f0a08;
+  color: var(--ink-dim);
+  font-style: italic;
+}
 .v2-garrison.ace { box-shadow: 0 0 0 1px var(--marquee-gold) inset; }
-.v2-garrison-name { font-family: var(--font-display); font-size: 12px; font-weight: bold; }
+/* Side stripe with YOU / OPP label */
+.v2-garrison::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  background: var(--rule);
+}
+.v2-garrison.mine::before { background: var(--good); }
+.v2-garrison.opp-revealed::before { background: var(--danger); }
+.v2-garrison.opp-hidden::before {
+  background: repeating-linear-gradient(45deg, #5a3a30, #5a3a30 4px, #0f0a08 4px, #0f0a08 8px);
+}
+.v2-garrison-label {
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: bold;
+  color: #0d0a07;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 1px;
+}
+.v2-garrison-name { font-family: var(--font-display); font-size: 13px; font-weight: bold; }
+.v2-garrison.mine .v2-garrison-name { color: var(--ink); }
+.v2-garrison.opp-revealed .v2-garrison-name { color: #f0d6d2; }
 .v2-garrison-meta { font-size: 10px; color: var(--ink-dim); }
 .v2-garrison .badge { display: inline-block; padding: 1px 4px; border-radius: 2px; background: var(--rule); margin-right: 2px; }
 

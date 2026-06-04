@@ -42,16 +42,17 @@ export function ArenaCell({ index, biome, banner, myGarrison, oppGarrison, selec
 function MyGarrison({ g }: { g: Garrison }) {
   const cls = ['v2-garrison', 'mine', g.isAce && 'ace'].filter(Boolean).join(' ');
   return (
-    <div className={cls}>
+    <div className={cls} title={`Your ${g.card.creature.name}`}>
+      <span className="v2-garrison-label">YOU</span>
       <div className="v2-garrison-name">
         {g.card.creature.name}
-        {g.isAce && <span style={{ color: 'var(--marquee-gold)', marginLeft: 4 }}>★</span>}
+        {g.isAce && <span style={{ color: 'var(--marquee-gold)', marginLeft: 4 }} title="Your Ace champion">★</span>}
       </div>
       <div className="v2-garrison-meta">
         M{g.card.might} · S{Math.max(0, g.card.stamina - g.woundOffset)}
-        {g.dugIn && <span className="badge" style={{ marginLeft: 4 }}>⛺ Dug-In</span>}
+        {g.dugIn && <span className="badge" style={{ marginLeft: 4 }} title="Dug-In: +2 dice when defending">⛺ Dug-In</span>}
       </div>
-      {g.declaration && <div style={{ fontSize: 10, color: 'var(--ink-dim)', marginTop: 2 }}>declared: "{g.declaration}"</div>}
+      {g.declaration && <div style={{ fontSize: 10, color: 'var(--ink-dim)', marginTop: 2 }}>you declared: "{g.declaration}"</div>}
     </div>
   );
 }
@@ -59,16 +60,18 @@ function MyGarrison({ g }: { g: Garrison }) {
 function OppGarrison({ g }: { g: GarrisonView }) {
   if (!g.hidden) {
     return (
-      <div className="v2-garrison opp-revealed">
+      <div className="v2-garrison opp-revealed" title={`Opponent's ${g.cardName} — revealed`}>
+        <span className="v2-garrison-label">OPP</span>
         <div className="v2-garrison-name">{g.cardName}</div>
         <div className="v2-garrison-meta">M{g.card.might} · S{g.card.stamina}</div>
       </div>
     );
   }
   return (
-    <div className="v2-garrison opp-hidden">
+    <div className="v2-garrison opp-hidden" title="Opponent's face-down garrison">
+      <span className="v2-garrison-label">OPP</span>
       <div className="v2-garrison-name">??? face-down</div>
-      {g.declared && <div style={{ fontSize: 10 }}>claims: "{g.declared}"</div>}
+      {g.declared && <div style={{ fontSize: 10 }}>they claim: "{g.declared}"</div>}
       {g.sniffedTags && g.sniffedTags.length > 0 && (
         <div style={{ fontSize: 10, color: 'var(--accent)' }}>sniffed: [{g.sniffedTags.join(', ')}]</div>
       )}
