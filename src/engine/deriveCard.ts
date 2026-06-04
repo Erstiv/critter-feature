@@ -37,7 +37,9 @@ function staminaFromMight(might: number, tags: Creature['tags']): number {
   if (tags.includes('Unbroken') || tags.includes('Regenerate')) stam += 2;
   if (tags.includes('Armor')) stam += 1;
   if (tags.includes('Flyer')) stam -= 1;
-  return Math.max(1, stam);
+  // Cap at 9 per cowork ratification b8ea916c — keeps Slime-Mold-class long-tail
+  // creatures from exceeding the Tardigrade ceiling.
+  return Math.max(1, Math.min(9, stam));
 }
 
 export function deriveCard(creature: Creature): Card {

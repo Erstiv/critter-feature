@@ -1,4 +1,5 @@
 import type { Biome, BoutResult, Card, LegResult } from '../types.ts';
+import { BIOMES } from '../types.ts';
 import { resolveLeg } from './resolveLeg.ts';
 
 export type BoutOpts = {
@@ -155,16 +156,45 @@ export function resolveBout(opts: BoutOpts): BoutResult {
     };
   }
 
-  // Shouldn't reach here in best-of-3.
-  log.push(`\n>>> Best-of-3 exhausted without a winner — unexpected state`);
-  return {
-    a: a.creature.name,
-    b: b.creature.name,
-    legs,
-    winner: a.creature.name,
-    winType: 'glory',
-    aFinalStamina: aStam,
-    bFinalStamina: bStam,
-    log,
-  };
+  // STALEMATE TIEBREAKER (cowork ratification b8ea916c):
+  // After 3 legs with neither a Glory (2 wins) nor an Endurance KO (0 stam),
+  // most stamina remaining at Leg 3 end takes Glory. Still tied → sudden-death
+  // re-roll in a fresh neutral biome (one not yet used in this bout). Endurance
+  // KO can still fire during sudden death.
+  if (aStam > bStam) {
+    log.push(`\n>>> STALEMATE — ${a.creature.name} takes Glory by stamina (${aStam} vs ${bStam})`);
+    return { a: a.creature.name, b: b.creature.name, legs, winner: a.creature.name, winType: 'glory', aFinalStamina: aStam, bFinalStamina: bStam, log };
+  }
+  if (bStam > aStam) {
+    log.push(`\n>>> STALEMATE — ${b.creature.name} takes Glory by stamina (${bStam} vs ${aStam})`);
+    return { a: a.creature.name, b: b.creature.name, legs, winner: b.creature.name, winType: 'glory', aFinalStamina: aStam, bFinalStamina: bStam, log };
+  }
+
+  // True stalemate — equal stamina. Sudden-death re-roll in a fresh neutral biome.
+  const used = new Set<Biome>(opts.terrainPicks.slice(0, 3));
+  const candidates = BIOMES.filter((b) => !used.has(b));
+  const sdBiome: Biome = (candidates.length ? candidates[Math.floor(opts.rand() * candidates.length)]! : 'Plains') as Biome;
+  log.push(`\n[Sudden Death — fresh neutral biome: ${sdBiome}]`);
+  const sd = resolveLeg({
+    a, b, biome: sdBiome,
+    challenger: 'a',
+    aStartStamina: aStam, bStartStamina: bStam,
+    aFiredThisBout: aFired, bFiredThisBout: bFired,
+    rand: opts.rand,
+  });
+  legs.push(sd.result);
+  log.push(...sd.result.log);
+  aStam = Math.max(0, sd.aEndStamina);
+  bStam = Math.max(0, sd.bEndStamina);
+  if (aStam <= 0 && bStam > 0) {
+    log.push(`\n>>> SUDDEN-DEATH ENDURANCE KO — ${b.creature.name} wins`);
+    return { a: a.creature.name, b: b.creature.name, legs, winner: b.creature.name, winType: 'endurance', aFinalStamina: aStam, bFinalStamina: bStam, log };
+  }
+  if (bStam <= 0 && aStam > 0) {
+    log.push(`\n>>> SUDDEN-DEATH ENDURANCE KO — ${a.creature.name} wins`);
+    return { a: a.creature.name, b: b.creature.name, legs, winner: a.creature.name, winType: 'endurance', aFinalStamina: aStam, bFinalStamina: bStam, log };
+  }
+  const sdWinner = sd.result.winner ?? (aStam >= bStam ? a.creature.name : b.creature.name);
+  log.push(`\n>>> SUDDEN-DEATH GLORY — ${sdWinner} wins`);
+  return { a: a.creature.name, b: b.creature.name, legs, winner: sdWinner, winType: 'glory', aFinalStamina: aStam, bFinalStamina: bStam, log };
 }

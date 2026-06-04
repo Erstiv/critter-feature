@@ -122,14 +122,16 @@ function abilityStrength(ab: AbProxy): number {
 // affBreadth_n already 0..1
 // abilityStrength_n  = clamp(abStr / 3.5, 0, 1)
 function cardCost(might: number, stam: number, affB: number, abStr: number): number {
+  // Cowork ratification b8ea916c: Option B scale — `cost = 50 + (sum)*100`.
+  // 100 = average. Soft review-flag bands [75..85, 120..135]; hard clamp <75 or >135.
   const mN = (might - 1) / 3;
   const sN = Math.min(1, (stam - 1) / 11);
   const aN = affB;
   const xN = Math.min(1, abStr / 3.5);
-  return Math.round((0.45 * mN + 0.25 * sN + 0.15 * aN + 0.15 * xN) * 100);
+  return Math.round(50 + (0.45 * mN + 0.25 * sN + 0.15 * aN + 0.15 * xN) * 100);
 }
 
-console.log('\n=== STARTER 9 cardCost (target band 92–108) ===');
+console.log('\n=== STARTER 9 cardCost (Option B; clean 85–120, flag 75–85/120–135, clamp <75 or >135) ===');
 for (const c of STARTER_8_PLUS) {
   const m = c.mightOverride!;
   const s = c.staminaOverride!;
@@ -140,7 +142,12 @@ for (const c of STARTER_8_PLUS) {
     nullVs: c.ability.nullVs,
   });
   const cost = cardCost(m, s, affB, xStr);
-  const verdict = cost >= 92 && cost <= 108 ? '✅' : cost > 108 ? '↑ over' : '↓ under';
+  const verdict =
+    cost >= 85 && cost <= 120 ? '✅ clean'
+    : cost >= 75 && cost < 85 ? '⚠ flag (low)'
+    : cost > 120 && cost <= 135 ? '⚠ flag (high)'
+    : cost < 75 ? '✗ clamp (low)'
+    : '✗ clamp (high)';
   console.log(
     `  ${c.name.padEnd(22)} M${m}/S${s}  affB=${affB.toFixed(2)}  abStr=${xStr.toFixed(2)}  cost=${cost}  ${verdict}`
   );
@@ -162,8 +169,9 @@ for (const c of creatures) {
 }
 costs.sort((a, b) => a - b);
 console.log(`  N=${costs.length}  min=${costs[0]}  max=${costs[costs.length - 1]}  median=${costs[Math.floor(costs.length / 2)]}`);
-console.log(`  in band [92..108]: ${costs.filter((c) => c >= 92 && c <= 108).length}/${costs.length}`);
-console.log(`  outliers: ${outliers.length} (${outliers.filter((o) => o.cost < 92).length} under, ${outliers.filter((o) => o.cost > 108).length} over)`);
+console.log(`  clean [85..120]: ${costs.filter((c) => c >= 85 && c <= 120).length}/${costs.length}`);
+console.log(`  flagged [75..85, 120..135]: ${costs.filter((c) => (c >= 75 && c < 85) || (c > 120 && c <= 135)).length}/${costs.length}`);
+console.log(`  hard-clamp (<75 or >135): ${costs.filter((c) => c < 75 || c > 135).length}/${costs.length}`);
 
 // Hist
 const bins: Record<string, number> = {};
