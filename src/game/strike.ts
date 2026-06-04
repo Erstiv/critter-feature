@@ -80,15 +80,21 @@ export function applyStrike(
     if (!srcArena) return { ok: false, error: 'source arena out of range' };
     const g = srcArena.garrisons[attacker];
     if (!g) return { ok: false, error: `You don't have a critter at ${biomeOf(action.sourceArena)} anymore.` };
-    // Cowork d4a5dc89 Q3: adjacency DROPPED. Attack from a garrison can hit any arena.
-    if (action.sourceArena === action.targetArena) {
-      return { ok: false, error: `Your critter is already at ${biomeOf(action.targetArena)} — pick a different target.` };
-    }
     attackingGarrison = ns.garrisons.find((x) => x.id === g.id)!;
-    // The attacking garrison leaves its source arena to swing.
-    ns.arenas[action.sourceArena]!.garrisons[attacker] = null;
-    attackingGarrison.arena = action.targetArena;
-    attackingGarrison.hidden = false;   // strike reveals
+    // Cowork 01dc9dec Q1: contested-arena strikes ALLOWED. If the source IS the
+    // target (your occupant attacking the opponent's co-garrison), the critter
+    // stays in place — it doesn't leave its arena.
+    if (action.sourceArena === action.targetArena) {
+      // The pre-placed-but-attacking critter forfeits the lying-in-wait edge:
+      // dugIn flag stays as it is for stamina tracking but we explicitly DON'T
+      // forward it as a Dug-In bonus (handled below in defenderBonusDice).
+      attackingGarrison.hidden = false;   // strike reveals
+    } else {
+      // The attacking garrison leaves its source arena to swing toward target.
+      ns.arenas[action.sourceArena]!.garrisons[attacker] = null;
+      attackingGarrison.arena = action.targetArena;
+      attackingGarrison.hidden = false;
+    }
   }
 
   const defGarrison = targetArena.garrisons[defender];

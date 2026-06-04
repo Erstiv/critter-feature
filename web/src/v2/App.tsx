@@ -1,5 +1,5 @@
 // Top-level for v0.2 hot-seat.
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { mulberry32 } from '../../../src/engine/rng.ts';
 import { STARTER_8_PLUS } from '../../../src/data/starter8.ts';
 import { newGame, applyAction, type Action, type GameState, type PlayerId } from '../../../src/game/index.ts';
@@ -23,25 +23,22 @@ export function V2App() {
 
   function startMatch() {
     const r = mulberry32(seed);
-    // Each player gets the full starter pool (9 critters). The cap-3 ongoing draw
-    // rhythm actually has something to pull from, and seeing the SAME critters as
-    // your opponent (but on opposite sides) leans into the Critters/Creatures
-    // xenophobia premise. (Cowork direction d4a5dc89 + Elliot round-3 feedback.)
-    const p1Deck = shuffleWith(STARTER_8_PLUS.slice(), r);
-    const p2Deck = shuffleWith(STARTER_8_PLUS.slice(), r);
-    const fresh = newGame({ p1Deck, p2Deck, rand: r });
+    // Cowork 01dc9dec Q2: per spec §2/§9, each player gets ~15 critters. Pick
+    // 15 random from the starter pool WITH replacement (duplicates fine — cowork-
+    // sanctioned). Both decks rolled independently so each player's "deck" is
+    // distinct in composition + order.
+    function build15(): typeof STARTER_8_PLUS {
+      const out: typeof STARTER_8_PLUS = [];
+      for (let i = 0; i < 15; i++) {
+        out.push(STARTER_8_PLUS[Math.floor(r() * STARTER_8_PLUS.length)]!);
+      }
+      return out;
+    }
+    const fresh = newGame({ p1Deck: build15(), p2Deck: build15(), rand: r });
     setGame(fresh);
     setPhase({ kind: 'pass-to-garrison', player: 'p1' });
   }
 
-  function shuffleWith<T>(arr: T[], rand: () => number): T[] {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rand() * (i + 1));
-      [a[i], a[j]] = [a[j]!, a[i]!];
-    }
-    return a;
-  }
 
   function dispatch(player: PlayerId, action: Action): boolean {
     if (!game) return false;
@@ -90,10 +87,17 @@ export function V2App() {
     }
   }
 
-  // Check win whenever game updates.
-  if (game?.winner && phase.kind !== 'win') {
-    setPhase({ kind: 'win', winner: game.winner, condition: game.winCondition ?? 'glory' });
-  }
+  // Check win whenever game state updates. In useEffect (not render-time side
+  // effect) per React rules, so the assassination phase-flip is deterministic.
+  // (Cowork 01dc9dec Q3: instrument the assassination path.)
+  useEffect(() => {
+    if (!game) return;
+    if (game.winner && phase.kind !== 'win') {
+      console.log(`[critter-feature] Win detected: ${game.winner} by ${game.winCondition}. Flipping phase to win.`);
+      setPhase({ kind: 'win', winner: game.winner, condition: game.winCondition ?? 'glory' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game?.winner, game?.winCondition]);
 
   // ─── Render ───
   if (phase.kind === 'setup' || !game) {

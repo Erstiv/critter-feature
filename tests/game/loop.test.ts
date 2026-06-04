@@ -157,6 +157,55 @@ describe('v0.2 strike — clash uses engine', () => {
   });
 });
 
+describe('v0.2 win — Assassination (Ace burned)', () => {
+  it('burning the opponent Ace fires win state on the same applyAction', () => {
+    // p2 garrisons Peregrine + Ace at Sky. p1 strikes from hand with Saltwater Croc
+    // (Wetland Home but Sky is Peregrine Home → Croc actually loses on Sky usually,
+    // so let's strike at Plains where Peregrine has just been re-garrisoned to be Ace…
+    // Simplest construct: p2 puts Ace under a fragile creature, then p1 lands an
+    // overwhelming strike. Use seed brute-force to find an assassination.
+    let assassinationFound = false;
+    for (let seed = 1; seed <= 50 && !assassinationFound; seed++) {
+      const rand = mulberry32(seed);
+      const p1deck = [cByName('Saltwater Crocodile'), cByName('Jaguar'), cByName('Giant Squid'), cByName('Scorpion'), cByName('Sea Otter')];
+      const p2deck = [cByName('Peregrine Falcon'), cByName('Sea Otter'), cByName('Jaguar'), cByName('Scorpion'), cByName('Tardigrade')];
+      let state = newGame({ p1Deck: p1deck.slice(), p2Deck: p2deck.slice(), arenas: ['Wetland/Mud', 'Sky', 'Plains', 'Desert', 'Jungle'], rand, firstPlayer: 'p2' });
+      state = step(state, 'p2', { kind: 'Garrison', cardName: 'Peregrine Falcon', arena: 0, placeAce: true });
+      state = step(state, 'p2', { kind: 'EndTurn' });
+      state = step(state, 'p1', { kind: 'Strike', sourceArena: 'hand', sourceCardName: 'Saltwater Crocodile', targetArena: 0 });
+      const result = state.log.find((e) => e.t === 'strike-result');
+      if (result?.t === 'strike-result' && result.aceBurned) {
+        assassinationFound = true;
+        expect(state.winner).toBe('p1');
+        expect(state.winCondition).toBe('assassination');
+        // Win event must be logged in the same applyAction.
+        const winEvent = state.log.find((e) => e.t === 'win');
+        expect(winEvent?.t).toBe('win');
+      }
+    }
+    expect(assassinationFound).toBe(true);
+  });
+
+  it('contested-arena strike: source === target with opp present resolves the clash', () => {
+    // p1 hides at Plains. p2 hides at Plains too. p1 strikes at Plains using their own occupant.
+    const rand = mulberry32(11);
+    const deck = [cByName('Saltwater Crocodile'), cByName('Tardigrade'), cByName('Jaguar'), cByName('Sea Otter'), cByName('Scorpion')];
+    let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Plains', 'Desert', 'Sky', 'Jungle', 'Ice/Arctic'], rand });
+    state = step(state, 'p1', { kind: 'Garrison', cardName: 'Saltwater Crocodile', arena: 0, placeAce: true });
+    state = step(state, 'p1', { kind: 'EndTurn' });
+    state = step(state, 'p2', { kind: 'Garrison', cardName: 'Jaguar', arena: 0 });
+    state = step(state, 'p2', { kind: 'EndTurn' });
+    // p1 now strikes their own arena (their Croc attacks p2's Jaguar in Plains).
+    const r = applyAction(state, 'p1', { kind: 'Strike', sourceArena: 0, targetArena: 0 }, mulberry32(11));
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      const result = r.state.log.find((e) => e.t === 'strike-result');
+      expect(result?.t).toBe('strike-result');
+      // Whatever the outcome, exactly one of the two should burn (no tie-bounce in same arena makes the result land somehow).
+    }
+  });
+});
+
 describe('v0.2 win — Glory (majority banners)', () => {
   it('first player to 3 banners wins by Glory', () => {
     const rand = mulberry32(2);

@@ -292,26 +292,35 @@ function StrikeModal({ player, game, onCancel, onConfirm }: { player: PlayerId; 
         <div className="v2-section-title" style={{ marginTop: 12 }}>Target arena (pick where to attack)</div>
         <div className="v2-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
           {view.arenas.map((a) => {
-            // Cowork d4a5dc89: adjacency dropped. Only restriction: can't attack the arena you're in.
-            const eligible = source?.kind === 'hand' || (source?.kind === 'arena' && source.index !== a.index);
             const opp = view.opponent.garrisons.find((g) => g.arena === a.index);
+            const myG = view.myGarrisons.find((g) => g.arena === a.index);
+            // Cowork 01dc9dec Q1: contested strikes ALLOWED if there's an opp to fight.
+            // Eligible if: source is hand (any arena), OR source is a different garrison,
+            // OR source IS this arena AND there's an opp here to fight.
+            const sameArenaContested = source?.kind === 'arena' && source.index === a.index && !!opp;
+            const eligible =
+              source?.kind === 'hand'
+              || (source?.kind === 'arena' && source.index !== a.index)
+              || sameArenaContested;
             const oppLabel = !opp
               ? <span style={{color:'var(--ink-dim)'}}>empty — free banner if you win</span>
               : (opp.hidden
                 ? <span style={{color:'var(--danger)'}}>??? face-down{(opp as { declared?: string }).declared ? ` (claims "${(opp as { declared?: string }).declared}")` : ''}</span>
                 : <span style={{color:'var(--danger)'}}>{(opp as { cardName: string }).cardName} (revealed)</span>);
-            const myG = view.myGarrisons.find((g) => g.arena === a.index);
+            const tooltip = eligible
+              ? (sameArenaContested ? `Contested fight — your ${myG?.card.creature.name} attacks their creature here. You forfeit Dug-In but stay put if you win.` : `Attack at ${a.biome}`)
+              : (myG && !opp ? `You already hold ${a.biome} — empty target, attacking yourself isn't a thing` : 'Already in this arena');
             return (
               <button
                 key={a.index}
                 className={targetArena === a.index ? '' : 'ghost'}
                 onClick={() => eligible && setTargetArena(a.index)}
                 disabled={!eligible}
-                title={eligible ? `Attack at ${a.biome}` : (myG ? 'Your critter is already here' : 'Already in this arena')}
+                title={tooltip}
                 style={{ textAlign: 'left', padding: '8px 12px' }}
               >
                 <span style={{fontFamily:'var(--font-marquee)', fontWeight:700}}>{a.biome}</span>
-                <span style={{ marginLeft: 8, fontSize: 11 }}> — they have: {oppLabel}{myG ? <span style={{color:'var(--good)', marginLeft:8}}> · you: {myG.card.creature.name}</span> : null}</span>
+                <span style={{ marginLeft: 8, fontSize: 11 }}> — they have: {oppLabel}{myG ? <span style={{color:'var(--good)', marginLeft:8}}> · you: {myG.card.creature.name}</span> : null}{sameArenaContested ? <span style={{color:'var(--marquee-gold)', marginLeft:8}}> ★ contested fight</span> : null}</span>
               </button>
             );
           })}
