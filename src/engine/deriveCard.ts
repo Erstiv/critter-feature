@@ -44,8 +44,8 @@ export function deriveCard(creature: Creature): Card {
   const might = creature.mightOverride ?? mightFromPower(creature.power_score);
   const baseStamina = creature.staminaOverride ?? staminaFromMight(might, creature.tags);
 
-  const homeBiomes: Biome[] = [];
-  const exposedBiomes: Biome[] = [];
+  let homeBiomes: Biome[] = [];
+  let exposedBiomes: Biome[] = [];
 
   const unbroken = creature.tags.includes('Unbroken');
 
@@ -61,6 +61,12 @@ export function deriveCard(creature: Creature): Card {
       if (aff <= 2) exposedBiomes.push(biome);
     }
   }
+
+  // Hand-printed Home/Exposed overrides (used by cards Cowork has prescribed
+  // explicitly — e.g. Slime Mold, where the printed Night=Home doesn't match the
+  // strict aff≥8 rule because Slime Mold's Night affinity is 7).
+  if (creature.homeOverride) homeBiomes = creature.homeOverride.slice();
+  if (creature.exposedOverride) exposedBiomes = creature.exposedOverride.slice();
 
   return {
     creature,

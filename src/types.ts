@@ -93,6 +93,8 @@ export const CreatureSchema = z.object({
   flavor: z.string().optional(),
   mightOverride: z.number().int().min(1).optional(),
   staminaOverride: z.number().int().min(1).optional(),
+  homeOverride: z.array(BiomeSchema).optional(),
+  exposedOverride: z.array(BiomeSchema).optional(),
 });
 
 export type Creature = z.infer<typeof CreatureSchema>;

@@ -23,7 +23,11 @@ function shouldFireAbility(
   side: Side,
   biome: Biome
 ): { fires: boolean; reason?: string } {
-  if (!side.abilityOn) return { fires: false, reason: 'Exposed (ability OFF)' };
+  // [Mindless] bypasses Exposed→ability-OFF (precedent rule 3: psychological
+  // effects need a nervous system; Exposed is a behavioral suppression, so
+  // brainless creatures shrug it off). Optimal Path on Slime Mold relies on this.
+  const mindless = side.card.creature.tags.includes('Mindless');
+  if (!side.abilityOn && !mindless) return { fires: false, reason: 'Exposed (ability OFF)' };
   if (!abilityFiresInBiome(ability, biome, isWaterBiome(biome))) {
     return { fires: false, reason: `not in ${ability.biome ?? 'biome'}` };
   }
@@ -114,6 +118,8 @@ export function resolveLeg(opts: LegOpts): LegOutcome {
     selfFightAsHome: boolean;
     staminaTaxPerHit: number;
     immune: Tag[];
+    capHits: number | null;
+    floorStamina: number;
     log: string[];
   } {
     const acc = {
@@ -128,6 +134,8 @@ export function resolveLeg(opts: LegOpts): LegOutcome {
       selfFightAsHome: false,
       staminaTaxPerHit: 0,
       immune: [] as Tag[],
+      capHits: null as number | null,
+      floorStamina: 0,
       log: [] as string[],
     };
     const ab = side.card.creature.ability;
@@ -188,6 +196,16 @@ export function resolveLeg(opts: LegOpts): LegOutcome {
   if (aFire.selfAutoHits) log.push(`  ${a.creature.name}: +${aFire.selfAutoHits} auto-hit`);
   if (bFire.selfAutoHits) log.push(`  ${b.creature.name}: +${bFire.selfAutoHits} auto-hit`);
 
+  // CapHits — creature's hits this leg are bounded (e.g. Slime Mold's Optimal Path).
+  if (aFire.capHits !== null && aHits > aFire.capHits) {
+    log.push(`  ${a.creature.name}: CapHits caps ${aHits} → ${aFire.capHits}`);
+    aHits = aFire.capHits;
+  }
+  if (bFire.capHits !== null && bHits > bFire.capHits) {
+    log.push(`  ${b.creature.name}: CapHits caps ${bHits} → ${bFire.capHits}`);
+    bHits = bFire.capHits;
+  }
+
   // Armor / IgnoreHits — defender drops incoming.
   if (bFire.selfIgnoreHits > 0) {
     const ignored = Math.min(bFire.selfIgnoreHits, aHits);
@@ -239,8 +257,19 @@ export function resolveLeg(opts: LegOpts): LegOutcome {
     if (tax > 0) log.push(`  ${b.creature.name}: StaminaTax — ${a.creature.name} pays ${tax} for ${aHits} hits dealt`);
   }
 
-  const aEnd = opts.aStartStamina + aStaminaDelta;
-  const bEnd = opts.bStartStamina + bStaminaDelta;
+  let aEnd = opts.aStartStamina + aStaminaDelta;
+  let bEnd = opts.bStartStamina + bStaminaDelta;
+
+  // FloorStamina — Hits can't drop you below the floor (Slime Mold's Optimal Path).
+  // Applied to leg-end stamina; covers both leg-wound damage and StaminaTax.
+  if (aFire.floorStamina > 0 && aEnd < aFire.floorStamina) {
+    log.push(`  ${a.creature.name}: FloorStamina(${aFire.floorStamina}) clamps ${aEnd} → ${aFire.floorStamina}`);
+    aEnd = aFire.floorStamina;
+  }
+  if (bFire.floorStamina > 0 && bEnd < bFire.floorStamina) {
+    log.push(`  ${b.creature.name}: FloorStamina(${bFire.floorStamina}) clamps ${bEnd} → ${bFire.floorStamina}`);
+    bEnd = bFire.floorStamina;
+  }
 
   return {
     result: {
@@ -275,6 +304,8 @@ type EffectAcc = {
   selfFightAsHome: boolean;
   staminaTaxPerHit: number;
   immune: Tag[];
+  capHits: number | null;
+  floorStamina: number;
   log: string[];
 };
 type SideRef = { card: Card; stamina: number };
@@ -308,9 +339,10 @@ function applyEffect(e: Effect, acc: EffectAcc, _self: SideRef, _opp: SideRef): 
       acc.selfFightAsHome = true;
       break;
     case 'CapHits':
+      acc.capHits = acc.capHits === null ? e.n : Math.min(acc.capHits, e.n);
+      break;
     case 'FloorStamina':
-      // Wired in resolveBout / leg cap pass; M0 captures via accumulator but
-      // not yet applied because no starter-8 ability uses them.
+      acc.floorStamina = Math.max(acc.floorStamina, e.n);
       break;
     case 'SwapBiome':
       // Handled by the bout-level controller before this leg runs.

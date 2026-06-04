@@ -89,3 +89,54 @@ describe('resolveBout — signature dynamics', () => {
     expect(result.winType).toBe('glory');
   });
 });
+
+describe('Slime Mold — adjudicate fixture (Mindless + CapHits + FloorStamina + FightAsHome)', () => {
+  it('prints Might 1 / Stamina 9 with prescribed Home/Exposed', () => {
+    const c = card('Slime Mold');
+    expect(c.might).toBe(1);
+    expect(c.stamina).toBe(9);
+    expect(c.homeBiomes.sort()).toEqual(['Jungle', 'Night', 'Wetland/Mud']);
+    expect(c.exposedBiomes.sort()).toEqual(['Desert', 'Ice/Arctic', 'Open Ocean', 'Sky']);
+  });
+
+  it('CapHits clamps Slime Mold dealt damage to 1', () => {
+    const result = resolveBout({
+      a: card('Slime Mold'),
+      b: card('Tardigrade'),
+      terrainPicks: ['Wetland/Mud'],
+      firstChallenger: 'a',
+      legs: 1,
+      rand: mulberry32(42),
+    });
+    expect(result.legs[0]!.aHits).toBeLessThanOrEqual(1);
+  });
+
+  it('[Mindless] bypasses Exposed in Desert — Optimal Path still fires', () => {
+    const result = resolveBout({
+      a: card('Slime Mold'),
+      b: card('Peregrine Falcon'),
+      terrainPicks: ['Desert'],
+      firstChallenger: 'a',
+      legs: 1,
+      rand: mulberry32(11),
+    });
+    const log = result.legs[0]!.log.join('\n');
+    expect(log).toMatch(/Optimal Path.*fires/);
+  });
+
+  it('Menace nullifies on Slime Mold via [Mindless]? — not yet, but Disable would', () => {
+    // Sea Otter Menace nullVs:[Fearless,Mind] — Slime Mold has neither, so
+    // Menace WOULD hit. That's a design Q: does fear work on a brainless thing?
+    // Cowork's call. Test locks current behavior — Menace fires (not nullified).
+    const result = resolveBout({
+      a: card('Sea Otter'),
+      b: card('Slime Mold'),
+      terrainPicks: ['Wetland/Mud'],
+      firstChallenger: 'a',
+      legs: 1,
+      rand: mulberry32(5),
+    });
+    const log = result.legs[0]!.log.join('\n');
+    expect(log).not.toMatch(/Menace.*NULLIFIED/);
+  });
+});

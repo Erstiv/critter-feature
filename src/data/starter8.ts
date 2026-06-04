@@ -159,4 +159,34 @@ export const STARTER_8: Creature[] = [
   },
 ];
 
-export const STARTER_BY_NAME = new Map(STARTER_8.map((c) => [c.name, c]));
+// Slime Mold (`adjudicate` fixture per cowork memo 73cbc6d4): hand-statted at
+// Might 1 · Stamina 9. Demonstrates [Mindless] bypass of Exposed + Optimal Path
+// (FightAsHome + FloorStamina + CapHits). Available via CLI as a 9th playable.
+export const SLIME_MOLD: Creature = {
+  ...fromRoster('Slime Mold'),
+  tags: ['Collective', 'Mindless', 'Regenerate'],
+  mightOverride: 1,
+  staminaOverride: 9,
+  // Cowork-prescribed printed Home/Exposed (memo 73cbc6d4). Roster JSON puts
+  // Night at affinity 7, which would NOT qualify as Home under strict aff≥8 —
+  // hence the explicit override.
+  homeOverride: ['Wetland/Mud', 'Jungle', 'Night'],
+  exposedOverride: ['Desert', 'Ice/Arctic', 'Sky', 'Open Ocean'],
+  flavor: 'Brainless yet solves mazes — fights you to a 1-1 tie until you give up.',
+  ability: {
+    name: 'Optimal Path',
+    trigger: 'passive',
+    cost: 0,
+    oncePerBout: false,
+    effects: [
+      { verb: 'FightAsHome' },
+      { verb: 'FloorStamina', n: 1 },
+      { verb: 'CapHits', n: 1 },
+    ],
+    nullVs: [],
+  },
+};
+
+export const STARTER_8_PLUS = [...STARTER_8, SLIME_MOLD];
+
+export const STARTER_BY_NAME = new Map(STARTER_8_PLUS.map((c) => [c.name, c]));
