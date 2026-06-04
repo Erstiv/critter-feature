@@ -37,23 +37,40 @@ export function resolveBout(opts: BoutOpts): BoutResult {
     if (aStam <= 0 || bStam <= 0) break;
     const biome = opts.terrainPicks[i] ?? opts.terrainPicks[opts.terrainPicks.length - 1] ?? 'Plains';
 
-    const out = resolveLeg({
-      a,
-      b,
-      biome,
-      challenger,
-      aStartStamina: aStam,
-      bStartStamina: bStam,
-      aFiredThisBout: aFired,
-      bFiredThisBout: bFired,
+    // Tie re-roll loop: paper rule says "Tie = both lose 1 Stamina, re-roll the
+    // Leg." Each tie wound takes effect (already applied by resolveLeg as the
+    // -1/-1 stamina delta), then we re-resolve a fresh leg with the post-tie
+    // stamina. Endurance KO can fire mid-tie.
+    let out = resolveLeg({
+      a, b, biome, challenger,
+      aStartStamina: aStam, bStartStamina: bStam,
+      aFiredThisBout: aFired, bFiredThisBout: bFired,
       rand: opts.rand,
     });
     legs.push(out.result);
     log.push(`\n[Leg ${i + 1}]`);
     log.push(...out.result.log);
-
     aStam = Math.max(0, out.aEndStamina);
     bStam = Math.max(0, out.bEndStamina);
+
+    let tieReRoll = 0;
+    while (out.result.winner === null && aStam > 0 && bStam > 0 && tieReRoll < 5) {
+      tieReRoll += 1;
+      log.push(`\n[Leg ${i + 1} — tie re-roll #${tieReRoll}]`);
+      out = resolveLeg({
+        a, b, biome, challenger,
+        aStartStamina: aStam, bStartStamina: bStam,
+        aFiredThisBout: aFired, bFiredThisBout: bFired,
+        rand: opts.rand,
+      });
+      legs.push(out.result);
+      log.push(...out.result.log);
+      aStam = Math.max(0, out.aEndStamina);
+      bStam = Math.max(0, out.bEndStamina);
+    }
+    if (tieReRoll >= 5 && out.result.winner === null) {
+      log.push(`  TIE RE-ROLL LIMIT (5) — leg unresolved, no leg-win awarded`);
+    }
 
     if (out.result.winner === a.creature.name) aWins += 1;
     else if (out.result.winner === b.creature.name) bWins += 1;
