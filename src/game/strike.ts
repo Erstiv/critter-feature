@@ -50,7 +50,8 @@ export function applyStrike(
 ): ApplyResult {
   const defender = otherPlayer(attacker);
   const targetArena = state.arenas[action.targetArena];
-  if (!targetArena) return { ok: false, error: 'arena out of range' };
+  if (!targetArena) return { ok: false, error: 'target arena out of range' };
+  const biomeOf = (i: number) => state.arenas[i]?.biome ?? `arena ${i}`;
 
   // Source the attacking garrison.
   const ns = cloneState(state);
@@ -76,12 +77,12 @@ export function applyStrike(
     // Don't add to ns.garrisons yet — only stays alive if it wins.
   } else {
     const srcArena = ns.arenas[action.sourceArena];
-    if (!srcArena) return { ok: false, error: 'sourceArena out of range' };
+    if (!srcArena) return { ok: false, error: 'source arena out of range' };
     const g = srcArena.garrisons[attacker];
-    if (!g) return { ok: false, error: `no ${attacker} garrison at sourceArena ${action.sourceArena}` };
+    if (!g) return { ok: false, error: `You don't have a critter at ${biomeOf(action.sourceArena)} anymore.` };
     // Cowork d4a5dc89 Q3: adjacency DROPPED. Attack from a garrison can hit any arena.
     if (action.sourceArena === action.targetArena) {
-      return { ok: false, error: 'cannot attack the arena you are already in' };
+      return { ok: false, error: `Your critter is already at ${biomeOf(action.targetArena)} — pick a different target.` };
     }
     attackingGarrison = ns.garrisons.find((x) => x.id === g.id)!;
     // The attacking garrison leaves its source arena to swing.

@@ -37,11 +37,16 @@ export function playerView(state: GameState, me: PlayerId): PlayerView {
     .map((g) => {
       // Surface partial reveals from scouts addressed to me.
       const sniffedTags = collectSniffedTagsFor(state.log, me, them, g.arena);
+      const deepScout = collectDeepScoutFor(state.log, me, them, g.arena);
       if (!g.hidden) {
         return { hidden: false, arena: g.arena, cardName: g.card.creature.name, card: g.card };
       }
       const v: GarrisonView = { hidden: true, arena: g.arena, sniffedTags };
       if (g.declaration !== undefined) v.declared = g.declaration;
+      if (deepScout) {
+        v.deepScoutedName = deepScout.name;
+        v.deepScoutedCard = deepScout.card;
+      }
       return v;
     });
 
@@ -71,9 +76,6 @@ function collectSniffedTagsFor(log: GameEvent[], me: PlayerId, target: PlayerId,
   const tags = new Set<import('../types.ts').Tag>();
   for (const e of log) {
     if (e.t === 'scout-result-private' && e.asker === me && e.result.kind === 'Sniff') {
-      // We can't easily attach arena to the result without back-walking;
-      // pair-up with the corresponding `scout` event right before it.
-      // For now, infer by adjacency.
       const idx = log.indexOf(e);
       const req = log[idx - 1];
       if (req && req.t === 'scout' && req.asker === me && req.target === target && req.arena === arena) {
@@ -82,4 +84,18 @@ function collectSniffedTagsFor(log: GameEvent[], me: PlayerId, target: PlayerId,
     }
   }
   return Array.from(tags);
+}
+
+function collectDeepScoutFor(log: GameEvent[], me: PlayerId, target: PlayerId, arena: number): { name: string; card: import('../types.ts').Card } | null {
+  // Walk backwards — most-recent Deep Scout wins. (Realistically there's only one.)
+  for (let i = log.length - 1; i >= 0; i--) {
+    const e = log[i]!;
+    if (e.t === 'scout-result-private' && e.asker === me && e.result.kind === 'DeepScout') {
+      const req = log[i - 1];
+      if (req && req.t === 'scout' && req.asker === me && req.target === target && req.arena === arena) {
+        return { name: e.result.cardName, card: e.result.card };
+      }
+    }
+  }
+  return null;
 }

@@ -31,6 +31,18 @@ export function Turn({ player, game, onAction }: Props) {
           Your scouts: {view.myScoutTokens} · Their scouts: {view.opponent.scoutTokens} · Their hand: {view.opponent.handSize} · Their deck: {view.opponent.deckSize}
         </span>
       </div>
+      {view.myGarrisons.length > 0 && (
+        <div style={{ background: '#1a2018', border: '1px solid var(--good)', borderLeft: '4px solid var(--good)', padding: '8px 12px', borderRadius: 3, marginBottom: 12, fontSize: 12 }}>
+          <strong style={{ color: 'var(--good)' }}>Your critters on the board:</strong>{' '}
+          {view.myGarrisons.map((g, i) => (
+            <span key={g.id}>
+              {i > 0 && ' · '}
+              <strong style={{color:'var(--ink)'}}>{g.card.creature.name}</strong> at {view.arenas[g.arena]!.biome}
+              {g.isAce && <span title="Your Ace" style={{color:'var(--marquee-gold)'}}> ★</span>}
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="v2-section-title">Arenas — tonight's bill</div>
       <div className="v2-arena-row">
@@ -256,19 +268,24 @@ function StrikeModal({ player, game, onCancel, onConfirm }: { player: PlayerId; 
 
         {view.myGarrisons.length > 0 && (
           <>
-            <div className="v2-section-title" style={{ marginTop: 12 }}>Or: from one of your critters on the board</div>
+            <div className="v2-section-title" style={{ marginTop: 12 }}>Or: send one of your critters from the board (leaves its current arena!)</div>
             <div className="v2-row">
               {view.myGarrisons.map((g) => (
                 <button
                   key={g.id}
                   className={source?.kind === 'arena' && source.index === g.arena ? '' : 'ghost'}
                   onClick={() => setSource({ kind: 'arena', index: g.arena })}
-                  title={`Send ${g.card.creature.name} out from this arena`}
+                  title={`Send ${g.card.creature.name} away from ${view.arenas[g.arena]!.biome}. If it wins, it stays in the new arena (and the original goes empty).`}
                 >
-                  {g.card.creature.name}
+                  {g.card.creature.name} <span style={{ color: 'var(--ink-dim)', fontSize: 10 }}>(at {view.arenas[g.arena]!.biome})</span>
                 </button>
               ))}
             </div>
+            {source?.kind === 'arena' && (
+              <p style={{ fontSize: 11, color: 'var(--exposed)', marginTop: 6 }}>
+                ⚠ {view.myGarrisons.find(g => g.arena === source.index)?.card.creature.name} will LEAVE {view.arenas[source.index]!.biome}. If they lose, they burn. If they win, the original arena goes empty (and your banner there flips to neutral).
+              </p>
+            )}
           </>
         )}
 

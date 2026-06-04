@@ -106,8 +106,17 @@ export type PlayerState = {
 // ──────────────────────────────────────────────────────────────────────
 
 export type GarrisonView =
-  | { hidden: true; arena: number; sniffedTags: Tag[]; declared?: string }   // face-down; sniffedTags = [] if no Sniff has been performed
-  | { hidden: false; arena: number; cardName: string; card: Card };          // revealed (by strike, Call, or Deep Scout)
+  | {
+      hidden: true;
+      arena: number;
+      sniffedTags: Tag[];
+      declared?: string;
+      // Deep Scout result, if the asker has performed one on this garrison. The
+      // opp doesn't know the asker peeked — but the asker carries the knowledge.
+      deepScoutedName?: string;
+      deepScoutedCard?: Card;
+    }
+  | { hidden: false; arena: number; cardName: string; card: Card };          // revealed (by strike or Call)
 
 export type PlayerView = {
   me: PlayerId;

@@ -76,6 +76,14 @@ function applyGarrison(state: GameState, player: PlayerId, action: Extract<Actio
   ns.garrisons.push(garrison);
   ns.arenas[action.arena]!.garrisons[player] = garrison;
 
+  // Empty-arena Hide claims the banner (Elliot's intuition 2026-06-04: "if a player
+  // is the only one in the arena don't they own it?"). If the opponent shows up
+  // later via attack, the banner can flip in the resulting clash.
+  const opponentPresent = ns.arenas[action.arena]!.garrisons[otherPlayer(player)] !== null;
+  if (!opponentPresent && ns.arenas[action.arena]!.banner === null) {
+    ns.arenas[action.arena]!.banner = player;
+  }
+
   if (action.placeAce) ns.players[player].aceGarrisonId = garrison.id;
 
   const ev: GameEvent = { t: 'garrison', player, arena: action.arena };
@@ -291,7 +299,14 @@ export function burnGarrison(ns: GameState, g: Garrison): { aceBurned: boolean }
 
 function applyEndTurn(state: GameState, player: PlayerId): ApplyResult {
   if (!state.actionTakenThisTurn) {
-    return { ok: false, error: 'must take an action before ending turn' };
+    // Allow EndTurn if the player is genuinely out of options: empty hand AND
+    // empty board AND no scout tokens. Otherwise force them to take an action.
+    const me = state.players[player];
+    const garrCount = state.garrisons.filter((g) => g.owner === player).length;
+    const stuck = me.hand.length === 0 && garrCount === 0 && me.scoutTokens === 0;
+    if (!stuck) {
+      return { ok: false, error: 'You must take an action this turn — try Scout, Attack, Move, or Hide.' };
+    }
   }
   const ns = cloneState(state);
 

@@ -23,12 +23,12 @@ export function V2App() {
 
   function startMatch() {
     const r = mulberry32(seed);
-    // Split the starter pool so each player gets unique critters — no more both
-    // players having a Saltwater Croc in their hand. (Elliot's feedback 2026-06-04.)
-    const shuffled = shuffleWith(STARTER_8_PLUS.slice(), r);
-    const half = Math.floor(shuffled.length / 2);
-    const p1Deck = shuffled.slice(0, half);
-    const p2Deck = shuffled.slice(half, half * 2);
+    // Each player gets the full starter pool (9 critters). The cap-3 ongoing draw
+    // rhythm actually has something to pull from, and seeing the SAME critters as
+    // your opponent (but on opposite sides) leans into the Critters/Creatures
+    // xenophobia premise. (Cowork direction d4a5dc89 + Elliot round-3 feedback.)
+    const p1Deck = shuffleWith(STARTER_8_PLUS.slice(), r);
+    const p2Deck = shuffleWith(STARTER_8_PLUS.slice(), r);
     const fresh = newGame({ p1Deck, p2Deck, rand: r });
     setGame(fresh);
     setPhase({ kind: 'pass-to-garrison', player: 'p1' });

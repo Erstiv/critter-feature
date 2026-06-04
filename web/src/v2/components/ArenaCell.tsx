@@ -85,12 +85,18 @@ function OppGarrison({ g }: { g: GarrisonView }) {
       </div>
     );
   }
+  const peek = g.deepScoutedName;
   return (
-    <div className="v2-garrison opp-hidden" title="Opponent's face-down garrison">
+    <div className="v2-garrison opp-hidden" title={peek ? `You Deep Scouted this: ${peek}` : "Opponent's face-down creature"}>
       <span className="v2-garrison-label">OPP</span>
-      <div className="v2-garrison-name">??? face-down</div>
-      {g.declared && <div style={{ fontSize: 10 }}>they claim: "{g.declared}"</div>}
-      {g.sniffedTags && g.sniffedTags.length > 0 && (
+      <div className="v2-garrison-name">{peek ? `${peek} (face-down)` : '??? face-down'}</div>
+      {peek && g.deepScoutedCard && (
+        <div className="v2-garrison-meta" style={{ color: 'var(--accent)' }}>
+          M{g.deepScoutedCard.might} · S{g.deepScoutedCard.stamina} <span style={{fontStyle:'italic'}}>(you scouted it)</span>
+        </div>
+      )}
+      {!peek && g.declared && <div style={{ fontSize: 10 }}>they claim: "{g.declared}"</div>}
+      {!peek && g.sniffedTags && g.sniffedTags.length > 0 && (
         <div style={{ fontSize: 10, color: 'var(--accent)' }}>sniffed: [{g.sniffedTags.join(', ')}]</div>
       )}
     </div>
