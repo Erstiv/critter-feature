@@ -124,6 +124,19 @@ describe('Slime Mold — adjudicate fixture (Mindless + CapHits + FloorStamina +
     expect(log).toMatch(/Optimal Path.*fires/);
   });
 
+  it('tie re-roll fires when both sides land equal hits', () => {
+    // Slime Mold vs Tardigrade is the natural tie machine — both cap at 1 hit
+    // and frequently match. The log should show at least one "tie re-roll".
+    const result = resolveBout({
+      a: card('Slime Mold'),
+      b: card('Tardigrade'),
+      terrainPicks: ['Wetland/Mud', 'Wetland/Mud', 'Wetland/Mud'],
+      firstChallenger: 'a',
+      rand: mulberry32(42),
+    });
+    expect(result.log.some((l) => /tie re-roll/.test(l))).toBe(true);
+  });
+
   it('Menace nullifies on Slime Mold via [Mindless]? — not yet, but Disable would', () => {
     // Sea Otter Menace nullVs:[Fearless,Mind] — Slime Mold has neither, so
     // Menace WOULD hit. That's a design Q: does fear work on a brainless thing?
