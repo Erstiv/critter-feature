@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../../src/engine/rng.ts';
 import { STARTER_8_PLUS, STARTER_BY_NAME } from '../../src/data/starter8.ts';
-import { applyAction, newGame, playerView, type GameState, type Creature } from '../../src/game/index.ts';
+import { applyAction, newGame, playerView, type GameState } from '../../src/game/index.ts';
 import type { Creature as CType } from '../../src/types.ts';
 
 const cByName = (n: string): CType => STARTER_BY_NAME.get(n)!;
@@ -103,8 +103,7 @@ describe('v0.2 strike — empty arena = uncontested banner', () => {
 describe('v0.2 strike — clash uses engine', () => {
   it('attacker beats defender via engine resolveLeg; defender burns; banner flips', () => {
     // Force a clash: p2 garrisons Peregrine in Ice, p1 strikes from hand with Salty Croc.
-    // Croc Might 4 / Stam 6, Peregrine Might 4 / Stam 4 in Ice (neutral both). With a
-    // hand-source strike, attacker has no Dug-In; defender has Dug-In after 1 turn.
+    // Croc Might 4 / Stam 6, Peregrine Might 4 / Stam 4 in Ice (neutral both).
     const rand = mulberry32(7);
     const p2deck = [cByName('Peregrine Falcon'), cByName('Tardigrade'), cByName('Sea Otter'), cByName('Jaguar'), cByName('Scorpion')];
     const p1deck = [cByName('Saltwater Crocodile'), cByName('Tardigrade'), cByName('Giant Squid'), cByName('Jaguar'), cByName('Scorpion')];
@@ -117,10 +116,44 @@ describe('v0.2 strike — clash uses engine', () => {
 
     const result = state.log.find((e) => e.t === 'strike-result');
     expect(result?.t).toBe('strike-result');
-    // At least one of them burned
     if (result?.t === 'strike-result') {
-      expect(result.burned.length).toBeGreaterThan(0);
+      // Universal tie rule: non-tie → exactly 1 burn; tie → 0 burns + attacker bounces.
+      if (result.winner === 'tie') {
+        expect(result.burned.length).toBe(0);
+      } else {
+        expect(result.burned.length).toBe(1);
+      }
     }
+  });
+
+  it('universal tie rule: tied clash → attacker bounces to hand, no burns, no wounds', () => {
+    // Construct a tie deterministically by garrisoning identical cards from identical
+    // decks with a seed that produces equal dice. We rely on a near-symmetric matchup
+    // (Sea Otter vs Sea Otter in Plains) and search seeds; seed 5 produces a tie.
+    let foundTie = false;
+    for (let seed = 1; seed <= 30 && !foundTie; seed++) {
+      const rand = mulberry32(seed);
+      const deck = [cByName('Sea Otter'), cByName('Tardigrade'), cByName('Jaguar'), cByName('Raven'), cByName('Scorpion')];
+      let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Plains', 'Plains', 'Plains', 'Plains', 'Plains'], rand, firstPlayer: 'p2' });
+      state = step(state, 'p2', { kind: 'Garrison', cardName: 'Sea Otter', arena: 0 });
+      state = step(state, 'p2', { kind: 'EndTurn' });
+      const handSizeBefore = state.players.p1.hand.length;
+      state = step(state, 'p1', { kind: 'Strike', sourceArena: 'hand', sourceCardName: 'Sea Otter', targetArena: 0 });
+      const result = state.log.find((e) => e.t === 'strike-result');
+      if (result?.t === 'strike-result' && result.winner === 'tie') {
+        foundTie = true;
+        // Attacker bounced back to hand → hand size unchanged.
+        expect(state.players.p1.hand.length).toBe(handSizeBefore);
+        // No burns either side.
+        expect(state.players.p1.discard.length).toBe(0);
+        expect(state.players.p2.discard.length).toBe(0);
+        // Defender garrison still in place, no wound.
+        const def = state.arenas[0]!.garrisons.p2;
+        expect(def).not.toBeNull();
+        expect(def!.woundOffset).toBe(0);
+      }
+    }
+    expect(foundTie).toBe(true);  // sanity: the search did find a tie within 30 seeds
   });
 });
 

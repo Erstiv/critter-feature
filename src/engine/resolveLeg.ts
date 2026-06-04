@@ -61,6 +61,10 @@ export type LegOpts = {
   bFiredThisBout: Set<string>;
   aOptions?: { swapBiomeAvailable: boolean };
   bOptions?: { swapBiomeAvailable: boolean };
+  // v0.2 Dug-In bonus per cowork ce5b3456 Q7: defender gets +N dice when pre-garrisoned.
+  // Default 0 keeps M0 engine behavior identical (13 tests stay green).
+  aDugInDice?: number;
+  bDugInDice?: number;
   rand: () => number;
 };
 
@@ -177,8 +181,12 @@ export function resolveLeg(opts: LegOpts): LegOutcome {
   // Compose dice counts.
   const aMight = a.might;
   const bMight = b.might;
-  const aDice = Math.max(0, aMight + aMod.diceDelta + aFire.selfDiceDelta + (aFire.selfFightAsHome && aMod.classification !== 'home' ? 2 : 0) + bFire.opponentDiceDelta);
-  const bDice = Math.max(0, bMight + bMod.diceDelta + bFire.selfDiceDelta + (bFire.selfFightAsHome && bMod.classification !== 'home' ? 2 : 0) + aFire.opponentDiceDelta);
+  const aDugIn = opts.aDugInDice ?? 0;
+  const bDugIn = opts.bDugInDice ?? 0;
+  if (aDugIn > 0) log.push(`  ${a.creature.name}: Dug-In +${aDugIn} dice`);
+  if (bDugIn > 0) log.push(`  ${b.creature.name}: Dug-In +${bDugIn} dice`);
+  const aDice = Math.max(0, aMight + aMod.diceDelta + aFire.selfDiceDelta + aDugIn + (aFire.selfFightAsHome && aMod.classification !== 'home' ? 2 : 0) + bFire.opponentDiceDelta);
+  const bDice = Math.max(0, bMight + bMod.diceDelta + bFire.selfDiceDelta + bDugIn + (bFire.selfFightAsHome && bMod.classification !== 'home' ? 2 : 0) + aFire.opponentDiceDelta);
 
   const aCanReroll = aMod.reroll || aFire.selfExtraReroll || (aFire.selfFightAsHome && !aMod.reroll);
   const bCanReroll = bMod.reroll || bFire.selfExtraReroll || (bFire.selfFightAsHome && !bMod.reroll);

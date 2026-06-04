@@ -168,13 +168,11 @@ export type GameEvent =
 
 export type GameConfig = {
   deckSize: number;            // §14 dial; default 15
-  startingHandSize: number;    // §3.2: draw 5
-  handCap: number;             // §4: TBD(cowork-227c338b/Q3) — assumed 5 until clarified
+  startingHandSize: number;    // §3.2: draw 5 (one-time setup)
+  handCap: number;             // Cowork ce5b3456 Q3: ongoing draw caps at 3
   scoutTokensPerPlayer: number;// §3.5: 3
   arenaCount: number;          // §3.1: 5
-  dugInDiceBonus: number;      // §5.4: +2
-  dugInWinsTies: boolean;      // TBD(cowork-227c338b/Q1/Q7): assumed true
-  dugInFreeReroll: boolean;    // TBD(cowork-227c338b/Q7): assumed true
+  dugInDiceBonus: number;      // Cowork ce5b3456 Q7: +2, full stop. Primary playtest dial.
   winnerWoundsPerStrike: number; // §5.5: 1
   majorityForGlory: number;    // §8: 3 (of 5)
   aceDieBonus: number;         // §7: +1 die defending
@@ -185,12 +183,10 @@ export type GameConfig = {
 export const DEFAULT_CONFIG: GameConfig = {
   deckSize: 15,
   startingHandSize: 5,
-  handCap: 5,                  // TBD — see Q3
+  handCap: 3,                  // Cowork ce5b3456 Q3
   scoutTokensPerPlayer: 3,
   arenaCount: 5,
   dugInDiceBonus: 2,
-  dugInWinsTies: true,         // TBD — see Q1/Q7
-  dugInFreeReroll: true,       // TBD — see Q7
   winnerWoundsPerStrike: 1,
   majorityForGlory: 3,
   aceDieBonus: 1,

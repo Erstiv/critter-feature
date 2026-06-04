@@ -126,24 +126,16 @@ export function applyStrike(
   const defenderGarr = ns.garrisons.find((x) => x.id === defGarrison.id)!;
   defenderGarr.hidden = false;
 
-  // Compose modified cards reflecting wound erosion + Ace die bonus + Dug-In.
-  // Engine wants `Card` with might/stamina; we patch a copy.
+  // Compose cards reflecting wound erosion.
   const attackerCard = { ...attackingGarrison.card, stamina: Math.max(0, attackingGarrison.card.stamina - attackingGarrison.woundOffset) };
   const defenderCard = { ...defenderGarr.card, stamina: Math.max(0, defenderGarr.card.stamina - defenderGarr.woundOffset) };
 
-  // Dug-In: §5.4 = +2 dice and ambush. Until cowork-Q7 lands, "ambush" =
-  // ns.config.dugInWinsTies (tie-break to defender) + ns.config.dugInFreeReroll.
+  // Dug-In (§5.4, cowork ce5b3456 Q7) + Ace die bonus (§7) flow through the engine
+  // as additive dice opts — no more Might-inflation.
   const defenderDugIn = defenderGarr.dugIn;
-  // Engine doesn't yet have an aDugIn/bDugIn opt; until we add it (additive change,
-  // pending cowork-Q7 ratification), we encode the Dug-In bonus by inflating
-  // defender's effective Might for the leg.
-  if (defenderDugIn) {
-    defenderCard.might += ns.config.dugInDiceBonus;
-  }
-  // Ace die bonus: §7 — defending Ace gets +1 die.
-  if (defenderGarr.isAce) {
-    defenderCard.might += ns.config.aceDieBonus;
-  }
+  const defenderBonusDice =
+    (defenderDugIn ? ns.config.dugInDiceBonus : 0) +
+    (defenderGarr.isAce ? ns.config.aceDieBonus : 0);
 
   const out = resolveLeg({
     a: attackerCard,
@@ -154,6 +146,7 @@ export function applyStrike(
     bStartStamina: defenderCard.stamina,
     aFiredThisBout: new Set(),
     bFiredThisBout: new Set(),
+    bDugInDice: defenderBonusDice,
     rand,
   });
 
@@ -174,16 +167,9 @@ export function applyStrike(
   } else if (out.result.bHits > out.result.aHits) {
     winnerSide = defender;
   } else {
-    // §5 — best-of-1; TBD(cowork-Q1). If dugInWinsTies + defender is Dug-In, defender wins.
-    if (defenderDugIn && ns.config.dugInWinsTies) {
-      winnerSide = defender;
-      ns.log.push({ t: 'strike-result', attacker, defender, arena: action.targetArena,
-        winner: 'tie', aHits: out.result.aHits, bHits: out.result.bHits,
-        burned: [], bannerOwner, aceBurned: false, legLog: ['tie → defender Dug-In tie-break'] });
-    } else {
-      // Punt: both burn (option b). Cowork will clarify; this matches "mutual destruction" reading.
-      winnerSide = 'tie';
-    }
+    // Universal tie rule (cowork ce5b3456 Q1): attacker bounces back to source,
+    // defender holds, NEITHER is wounded.
+    winnerSide = 'tie';
   }
 
   if (winnerSide === attacker) {
@@ -227,20 +213,22 @@ export function applyStrike(
     defenderGarr.woundOffset += ns.config.winnerWoundsPerStrike;
     bannerOwner = ns.arenas[action.targetArena]!.banner;
   } else {
-    // 'tie' fallthrough — both burn (TBD until cowork-Q1).
-    burnedNames.push(attackingGarrison.card.creature.name);
-    if (action.sourceArena !== 'hand') {
+    // TIE — universal bounce. No burns, no wounds.
+    if (action.sourceArena === 'hand') {
+      // Attacker returns the card to hand (the strike action consumed it; restore it).
+      ns.players[attacker].hand.push(attackingGarrison.card.creature);
+    } else {
+      // Attacker garrison bounces back to its source arena.
       const existing = ns.garrisons.find((x) => x.id === attackingGarrison.id);
       if (existing) {
-        const info = burnGarrison(ns, existing);
-        if (info.aceBurned) aceBurned = true;
+        existing.arena = action.sourceArena;
+        // Hidden status: it was revealed by the strike → stays revealed.
+        ns.arenas[action.sourceArena]!.garrisons[attacker] = existing;
       }
-    } else {
-      ns.players[attacker].discard.push(attackingGarrison.card.creature);
     }
-    burnedNames.push(defenderGarr.card.creature.name);
-    const info = burnGarrison(ns, defenderGarr);
-    if (info.aceBurned) aceBurned = true;
+    // Defender stays put. Banner (if it was empty before, it stays empty; if defender
+    // already had one, they keep it). For a contested-and-tied arena, no banner change.
+    bannerOwner = ns.arenas[action.targetArena]!.banner;
   }
 
   // §7 — Ace burn payoff: reveal ALL victim garrisons + attacker plants ONE free banner.
