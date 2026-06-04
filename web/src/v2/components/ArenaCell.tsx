@@ -1,6 +1,7 @@
 import type { PlayerId } from '../../../../src/game/index.ts';
 import type { Garrison, GarrisonView } from '../../../../src/game/index.ts';
 import type { Biome } from '../../../../src/types.ts';
+import { InfoButton } from './InfoButton.tsx';
 
 type Props = {
   index: number;
@@ -64,6 +65,7 @@ function MyGarrison({ g }: { g: Garrison }) {
       <span className="v2-garrison-label">YOU</span>
       <div className="v2-garrison-name">
         {g.card.creature.name}
+        <InfoButton name={g.card.creature.name} />
         {g.isAce && <span style={{ color: 'var(--marquee-gold)', marginLeft: 4 }} title="Your Ace champion">★</span>}
       </div>
       <div className="v2-garrison-meta">
@@ -80,7 +82,7 @@ function OppGarrison({ g }: { g: GarrisonView }) {
     return (
       <div className="v2-garrison opp-revealed" title={`Opponent's ${g.cardName} — revealed`}>
         <span className="v2-garrison-label">OPP</span>
-        <div className="v2-garrison-name">{g.cardName}</div>
+        <div className="v2-garrison-name">{g.cardName}<InfoButton name={g.cardName} /></div>
         <div className="v2-garrison-meta">M{g.card.might} · S{g.card.stamina}</div>
       </div>
     );
@@ -89,7 +91,7 @@ function OppGarrison({ g }: { g: GarrisonView }) {
   return (
     <div className="v2-garrison opp-hidden" title={peek ? `You Deep Scouted this: ${peek}` : "Opponent's face-down creature"}>
       <span className="v2-garrison-label">OPP</span>
-      <div className="v2-garrison-name">{peek ? `${peek} (face-down)` : '??? face-down'}</div>
+      <div className="v2-garrison-name">{peek ? `${peek} (face-down)` : '??? face-down'}{peek && <InfoButton name={peek} />}</div>
       {peek && g.deepScoutedCard && (
         <div className="v2-garrison-meta" style={{ color: 'var(--accent)' }}>
           M{g.deepScoutedCard.might} · S{g.deepScoutedCard.stamina} <span style={{fontStyle:'italic'}}>(you scouted it)</span>

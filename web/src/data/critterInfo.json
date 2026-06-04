@@ -1,0 +1,240 @@
+{
+  "_meta": {
+    "purpose": "Info-button content for Critter Feature. Keyed by critter name (must match critter_roster.json). identity = one short line (what it is + how it fights). funFacts = 2-3 short, real, fact-checked bullets. Missing key => hide the (i).",
+    "batch": "1 of N — active seed-42 decks + canonical starters. Rest of the 127 to follow.",
+    "author": "cowork",
+    "updated": "2026-06-04"
+  },
+  "Tardigrade": {
+    "identity": "The unkillable micro-animal — wins by simply refusing to die.",
+    "funFacts": [
+      "Has survived boiling, freezing, crushing pressure, and the raw vacuum of space.",
+      "Can dry into a lifeless 'tun' and revive years later when rehydrated.",
+      "Also called the water bear or moss piglet."
+    ]
+  },
+  "Peregrine Falcon": {
+    "identity": "The fastest animal alive — a guided missile with feathers.",
+    "funFacts": [
+      "In a hunting dive (a 'stoop') it exceeds 200 mph, the fastest of any animal.",
+      "Special baffles in its nostrils let it breathe at those speeds.",
+      "Lives on every continent except Antarctica, including on city skyscrapers."
+    ]
+  },
+  "Hummingbird": {
+    "identity": "A jewel-sized aerial acrobat with a furnace for a heart.",
+    "funFacts": [
+      "The only bird that can fly backwards and hover in place.",
+      "Its wings beat so fast they blur into a hum, and its heart can top 1,000 beats per minute.",
+      "To survive cold nights it drops into torpor, nearly shutting its body down."
+    ]
+  },
+  "Raccoon": {
+    "identity": "The masked opportunist — clever paws, no shame.",
+    "funFacts": [
+      "Its front paws are so sensitive and dexterous it can open latches and jars.",
+      "It often 'washes' or rolls food in water before eating.",
+      "One of the most adaptable mammals, thriving in cities as easily as forests."
+    ]
+  },
+  "Golden Snub-Nosed Monkey": {
+    "identity": "A snow-country primate dressed in gold.",
+    "funFacts": [
+      "Lives high in the cold mountain forests of central China.",
+      "Its thick golden coat lets it tolerate snow few other monkeys could survive.",
+      "Travels in some of the largest troops of any monkey."
+    ]
+  },
+  "Anglerfish": {
+    "identity": "A deep-sea ambusher that fishes with its own glowing lure.",
+    "funFacts": [
+      "The glowing 'lure' on its head is lit by symbiotic bacteria.",
+      "In some species the tiny male fuses permanently to the female's body.",
+      "It lives in the crushing dark of the deep ocean, far below sunlight."
+    ]
+  },
+  "Dumbo Octopus": {
+    "identity": "The deepest-dwelling octopus — gentle, ghostly, big-eared.",
+    "funFacts": [
+      "Named for the ear-like fins it flaps to swim, like Disney's Dumbo.",
+      "Lives deeper than almost any other octopus, thousands of metres down.",
+      "Instead of an ink sac it simply drifts away from danger."
+    ]
+  },
+  "Harpy Eagle": {
+    "identity": "The heavyweight raptor of the rainforest canopy.",
+    "funFacts": [
+      "Among the most powerful eagles on Earth, with rear talons the size of a grizzly bear's claws.",
+      "It snatches monkeys and sloths straight out of the trees.",
+      "It can swivel its head and raise a crown of feathers when alert."
+    ]
+  },
+  "Mata Mata Turtle": {
+    "identity": "A living leaf with a vacuum for a mouth.",
+    "funFacts": [
+      "Its flat, flappy head and shell mimic dead leaves and bark.",
+      "It doesn't chew — it snaps its mouth open and sucks prey in with the water.",
+      "A long snorkel-like nose lets it breathe without surfacing."
+    ]
+  },
+  "Hippopotamus": {
+    "identity": "A three-ton river tank — one of Africa's deadliest animals.",
+    "funFacts": [
+      "It secretes a red, oily 'blood sweat' that works as sunscreen and antibiotic.",
+      "It can't truly swim — it walks and pushes along the river bottom.",
+      "Despite a plant diet, it's responsible for many human deaths in Africa each year."
+    ]
+  },
+  "Flying Dragon (Draco)": {
+    "identity": "A gliding lizard that sails the forest on rib-wings.",
+    "funFacts": [
+      "It glides on 'wings' made of skin stretched over elongated ribs.",
+      "It can sail many metres tree-to-tree, but it cannot truly fly or flap.",
+      "Males flash a bright throat-flag to signal and display."
+    ]
+  },
+  "Axolotl": {
+    "identity": "The eternal-baby salamander that grows its body back.",
+    "funFacts": [
+      "It can regrow limbs, organs, and even parts of its brain and heart.",
+      "It stays in its larval form for life, keeping its feathery gills.",
+      "Critically endangered, it's native only to the ancient lakes of Mexico City."
+    ]
+  },
+  "Poison Dart Frog": {
+    "identity": "A thumbnail of pure warning-colour and venom.",
+    "funFacts": [
+      "Its bright colours warn predators that it's toxic — honest advertising.",
+      "It gets its poison from the ants and mites it eats; captive-raised ones aren't toxic.",
+      "Indigenous hunters once tipped blow-darts with the toxin of a few species."
+    ]
+  },
+  "Tuatara": {
+    "identity": "A living fossil — the last of an order older than the dinosaurs' fall.",
+    "funFacts": [
+      "It isn't a lizard; it's the sole survivor of an ancient reptile lineage.",
+      "It has a light-sensitive 'third eye' on top of its head as a youngster.",
+      "It lives slow and long — well over 100 years — in New Zealand."
+    ]
+  },
+  "Sloth": {
+    "identity": "The slowest mammal — and weirdly, a strong swimmer.",
+    "funFacts": [
+      "It moves so slowly that green algae grows in its fur as camouflage.",
+      "It climbs down to the ground to relieve itself only about once a week.",
+      "It can hold its breath and swim far faster than it ever moves on land."
+    ]
+  },
+  "Hairy (Wolverine) Frog": {
+    "identity": "The 'horror frog' that breaks its own bones into claws.",
+    "funFacts": [
+      "When threatened it snaps its toe bones and pushes them out through the skin as claws.",
+      "Breeding males grow hair-like skin strands thought to absorb extra oxygen.",
+      "It lives in the forests and streams of Central Africa."
+    ]
+  },
+  "Beaver": {
+    "identity": "Nature's engineer — reshapes whole rivers with its teeth.",
+    "funFacts": [
+      "Its dams create wetlands that countless other species depend on.",
+      "Its ever-growing front teeth are coated in iron, giving them an orange tint.",
+      "It's the second-largest rodent in the world."
+    ]
+  },
+  "Gorilla": {
+    "identity": "The gentle giant — the largest primate, built like a wrestler.",
+    "funFacts": [
+      "It shares about 98% of its DNA with humans.",
+      "Troops are led by a dominant 'silverback' male.",
+      "Despite its power it's mostly peaceful and eats a largely plant diet."
+    ]
+  },
+  "Swordfish": {
+    "identity": "A high-speed predator that hunts with a living blade.",
+    "funFacts": [
+      "It slashes through schools of fish with its long, flat bill to stun prey.",
+      "It can warm its eyes and brain to see sharply in cold deep water.",
+      "It's among the fastest fish in the ocean."
+    ]
+  },
+  "Giant Squid": {
+    "identity": "The deep's great phantom — eyes like dinner plates.",
+    "funFacts": [
+      "It has the largest eyes of any known animal, up to the size of a dinner plate.",
+      "It's a favourite prey of the sperm whale, which dives deep to hunt it.",
+      "Living ones were filmed in the wild only in the last couple of decades."
+    ]
+  },
+  "Immortal Jellyfish": {
+    "identity": "The creature that cheats death by growing young again.",
+    "funFacts": [
+      "When stressed or aging, it can revert its cells back to its juvenile polyp stage.",
+      "In principle this cycle can repeat indefinitely — biologically 'immortal'.",
+      "The whole animal is smaller than a fingernail."
+    ]
+  },
+  "Bar-headed Goose": {
+    "identity": "The altitude champion — flies over the roof of the world.",
+    "funFacts": [
+      "It migrates straight over the Himalayas, among the highest-flying birds known.",
+      "Its blood and lungs are specially tuned to grab oxygen from thin air.",
+      "It can climb to those heights in a matter of hours."
+    ]
+  },
+  "Jaguar": {
+    "identity": "The water-loving big cat with a skull-cracking bite.",
+    "funFacts": [
+      "Pound for pound it has the strongest bite of the big cats — it kills by piercing the skull.",
+      "Unlike most cats it loves water and swims readily.",
+      "Its name comes from a word meaning 'he who kills in one leap'."
+    ]
+  },
+  "Anaconda": {
+    "identity": "The heavyweight constrictor of the Amazon.",
+    "funFacts": [
+      "The green anaconda is among the heaviest snakes on Earth.",
+      "It squeezes prey rather than using venom.",
+      "It spends much of its life in slow rivers and swamps, eyes on top of its head."
+    ]
+  },
+  "Tiger": {
+    "identity": "The largest cat — a solitary, striped ambush hunter.",
+    "funFacts": [
+      "Every tiger's stripe pattern is unique, like a fingerprint.",
+      "Unusually for a cat, it's a strong and willing swimmer.",
+      "It hunts alone, relying on a sudden, explosive ambush."
+    ]
+  },
+  "Saltwater Crocodile": {
+    "identity": "The largest living reptile — patience with a bite like a vice.",
+    "funFacts": [
+      "It has the strongest bite force ever measured in a living animal.",
+      "It can cross open ocean between islands, riding currents.",
+      "It hunts by waiting, motionless, then exploding from the water."
+    ]
+  },
+  "Sea Otter": {
+    "identity": "A tool-using charmer wrapped in the warmest fur alive.",
+    "funFacts": [
+      "It uses a rock as a tool to crack open shellfish on its chest.",
+      "It has the densest fur of any animal — up to a million hairs per square inch.",
+      "Otters hold hands while resting so they don't drift apart."
+    ]
+  },
+  "Scorpion": {
+    "identity": "An armoured ancient that glows in the dark.",
+    "funFacts": [
+      "It glows bright blue-green under ultraviolet light, and no one is fully sure why.",
+      "Its lineage is over 400 million years old, older than the dinosaurs.",
+      "Some species can survive a year or more without eating."
+    ]
+  },
+  "Raven": {
+    "identity": "The feathered genius — a problem-solver in black.",
+    "funFacts": [
+      "It uses tools, plans ahead, and can mimic sounds, including human words.",
+      "Ravens play — sliding down snowbanks and tumbling in the air seemingly for fun.",
+      "They recognise individual faces and hold grudges."
+    ]
+  }
+}

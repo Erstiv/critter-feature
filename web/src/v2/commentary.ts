@@ -88,6 +88,11 @@ const ACE_BURN = [
   "THAT WAS THE ACE. The {winner} just tore the mask off the {loser} — their hidden champion, dead in {biome}, and every secret they had spills out with it.",
   "The hidden one is hidden no more. THE ACE IS DEAD, folks. The {winner} hunted it through every smoke screen and burned it in {biome}.",
   "★ ASSASSINATION ON THE {biome}. ★ The {winner} found the secret weapon and snapped it in half. The crowd may need to sit down.",
+  "Mask off! It was an Ace, folks — and {winner} just shoved it screaming into the {biome}. The whole hand collapses around the body.",
+  "★ THE HIDDEN CROWN BREAKS ★ {loser}'s champion bleeds out in {biome}, and the bench they were holding back goes with it.",
+  "The Ace was right there. THE WHOLE TIME. {winner} read the trick, called the bluff, broke the bone.",
+  "★ MAIN-EVENT KILL on the {biome}. ★ The hidden one comes out swinging and {winner} cuts the throat of the night with it.",
+  "{loser} was hoarding the prize. {winner} found the prize. The {biome} is now a grave with a flag on it.",
 ];
 
 const WINNER_NARROW = [
@@ -102,6 +107,10 @@ const WINNER_GENERIC = [
   "Bad day for the {loser}. The {winner} took {biome} clean and didn't apologize.",
   "{biome} answered, folks — and the answer was {winner}. The {loser} is the answer to a different question now.",
   "The {winner} gives a master class in {biome}. The {loser} is the demonstration. Demonstrations are messy.",
+  "{winner} doesn't hesitate. {loser} doesn't get to. The {biome} doesn't slow down for either of them.",
+  "Total control of the {biome}. The {loser} threw everything and got nothing for it. {winner} keeps the deed.",
+  "Folks, you came for a fight and got a footnote. The {winner} closes the book on the {loser} in {biome}.",
+  "The {winner} clamps down on the {loser} and the {biome} holds them there. End of the line.",
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -112,18 +121,33 @@ const MATCH_END_GLORY = [
   "THREE ARENAS! It's over! {winner}'s banners fly over the board and the crowd has completely lost its mind!",
   "THAT'S THE BILL. {winner} holds the room — three arenas, one night, total control. Roll credits.",
   "The board belongs to {winner} now. {loser} is going home in the dark. Glory, folks. ABSOLUTE glory.",
+  "★ THREE FLAGS, ONE NIGHT ★ {winner} doesn't just win — they own the map. The {loser} owns the bus ticket home.",
+  "Folks, the {winner} just put the whole damn night in their pocket. {loser} doesn't get one back.",
+  "Banners up across the board! {winner} closes it out — three arenas, no negotiations.",
+  "★ THE MAJORITY HOLDS ★ {winner} took the room arena by arena. The {loser} fought hard. Hard isn't enough.",
+  "The whole bill goes to {winner}. The {loser} can keep the wounds — that's all that's left.",
 ];
 
 const MATCH_END_ENDURANCE = [
   "They've got nothing left to send. No hand, no bench, no monsters. The {winner} wins by simply being the last thing standing.",
   "{loser} reached for a critter and found an empty cage. The water-bear taught us this one. Endurance wins. Always.",
   "The {loser} ran out of monsters before the {winner} ran out of patience. {biome} clears out. Nobody to bury.",
+  "★ THE CUPBOARD IS BARE ★ {loser} swings at air. The {winner} doesn't have to swing back. Game.",
+  "Folks, the {loser} threw their whole zoo at the {winner} and the {winner} is still standing. That's the win.",
+  "{loser} is out of monsters. {winner} is out of patience. Patience wins. It always wins.",
+  "★ LAST MONSTER STANDING ★ {winner} drained the deck, drained the board, drained the hope. The {loser} folds with nothing in the hand.",
+  "Show's over because there's nobody left to fight. {winner} closes the {biome}. {loser} goes home empty.",
 ];
 
 const MATCH_END_ASSASSINATION = [
   "THE ACE IS DEAD AND SO IS THE NIGHT! {winner} hunted the champion through {biome} and ended it. UNMASK IT. Show them what they killed!",
   "★ MAIN EVENT KILL ★ {winner} put the hidden one down in {biome}. {loser}'s champion is ash. That's how a Feature ends — grizzly, and on purpose.",
   "The hidden champion is dust on the {biome} floor. {winner} won by finding the one critter that mattered and breaking it. Folks. Go home. Tell your friends.",
+  "★ THE PRIZE KILL ★ {winner} stalked the {loser}'s Ace through smoke and bluff and burned it where it stood. The whole bill goes with it.",
+  "Folks, that's an ASSASSINATION. {winner} dragged the king out of the throne room and snapped it in {biome}. {loser} doesn't get a rematch tonight.",
+  "★ THE HIDDEN ONE FALLS ★ Every misdirection, every bluff, all of it — the {winner} cut straight through and put the Ace in the dirt of {biome}.",
+  "The {winner} won the only fight that mattered. Ask the {loser} — their Ace is in pieces and the rest of the deck just stopped breathing.",
+  "★ SHOW-CLOSER on the {biome}. ★ {winner} found the prize. Took the prize. Ended the prize. That is how a Critter Feature ends.",
 ];
 
 // ─────────────────────────────────────────────────────────────────
