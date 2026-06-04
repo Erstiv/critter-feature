@@ -10,9 +10,12 @@ export function ActionResult({ result, onDismiss }: Props) {
     <div className="v2-modal-backdrop">
       <div className={`v2-modal v2-result ${result.flavor ?? ''}`}>
         <h3>{result.title}</h3>
-        {result.body.map((l, i) => <p key={i}>{l}</p>)}
+        {result.narration && (
+          <p className="v2-narration">"{result.narration}"</p>
+        )}
+        {result.body.map((l, i) => <p key={i} className="v2-result-detail">{l}</p>)}
         <div className="v2-actions" style={{ marginTop: 16 }}>
-          <button onClick={onDismiss}>Continue</button>
+          <button onClick={onDismiss}>Continue ▸</button>
         </div>
       </div>
     </div>

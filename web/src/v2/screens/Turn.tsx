@@ -197,9 +197,9 @@ function ScoutModal({ player, game, onCancel, onConfirm }: { player: PlayerId; g
           Targets: {oppGarrisons.length === 0 ? '(none — opponent has no garrisons)' : `${oppGarrisons.length} opponent garrison(s)`}.
         </p>
         <div className="v2-row">
-          <label>Arena:</label>
+          <label>Which arena's creature:</label>
           {oppGarrisons.map((g) => (
-            <button key={g.arena} className={arena === g.arena ? '' : 'ghost'} onClick={() => setArena(g.arena)}>A{g.arena + 1}</button>
+            <button key={g.arena} className={arena === g.arena ? '' : 'ghost'} onClick={() => setArena(g.arena)}>{view.arenas[g.arena]!.biome}</button>
           ))}
         </div>
         <div className="v2-row" style={{ marginTop: 10 }}>
@@ -272,19 +272,30 @@ function StrikeModal({ player, game, onCancel, onConfirm }: { player: PlayerId; 
           </>
         )}
 
-        <div className="v2-section-title" style={{ marginTop: 12 }}>Target arena (any other)</div>
-        <div className="v2-row">
+        <div className="v2-section-title" style={{ marginTop: 12 }}>Target arena (pick where to attack)</div>
+        <div className="v2-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
           {view.arenas.map((a) => {
             // Cowork d4a5dc89: adjacency dropped. Only restriction: can't attack the arena you're in.
             const eligible = source?.kind === 'hand' || (source?.kind === 'arena' && source.index !== a.index);
+            const opp = view.opponent.garrisons.find((g) => g.arena === a.index);
+            const oppLabel = !opp
+              ? <span style={{color:'var(--ink-dim)'}}>empty — free banner if you win</span>
+              : (opp.hidden
+                ? <span style={{color:'var(--danger)'}}>??? face-down{(opp as { declared?: string }).declared ? ` (claims "${(opp as { declared?: string }).declared}")` : ''}</span>
+                : <span style={{color:'var(--danger)'}}>{(opp as { cardName: string }).cardName} (revealed)</span>);
+            const myG = view.myGarrisons.find((g) => g.arena === a.index);
             return (
               <button
                 key={a.index}
                 className={targetArena === a.index ? '' : 'ghost'}
                 onClick={() => eligible && setTargetArena(a.index)}
                 disabled={!eligible}
-                title={eligible ? `Attack at ${a.biome}` : 'Already in this arena'}
-              >{a.biome}</button>
+                title={eligible ? `Attack at ${a.biome}` : (myG ? 'Your critter is already here' : 'Already in this arena')}
+                style={{ textAlign: 'left', padding: '8px 12px' }}
+              >
+                <span style={{fontFamily:'var(--font-marquee)', fontWeight:700}}>{a.biome}</span>
+                <span style={{ marginLeft: 8, fontSize: 11 }}> — they have: {oppLabel}{myG ? <span style={{color:'var(--good)', marginLeft:8}}> · you: {myG.card.creature.name}</span> : null}</span>
+              </button>
             );
           })}
         </div>

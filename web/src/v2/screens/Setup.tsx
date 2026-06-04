@@ -30,21 +30,25 @@ export function Setup({ seed, onSeedChange, onStart }: Props) {
         Lies bait the opponent into wasting strikes on the wrong target — or into a free, public
         <strong> Call</strong> that <em>burns the garrison if they're right</em>. High-risk, high-reward.
       </p>
-      <div className="v2-row" style={{marginTop:18}}>
-        <label style={{ fontSize: 12, color: 'var(--ink-dim)' }} title="Reproducible randomness — same seed yields the same shuffle, draws, and dice. Useful for replay or debug.">seed</label>
+      <h3 style={{fontSize:14, fontFamily:'var(--font-display)', margin:'14px 0 6px', color:'var(--accent)'}}>What's the seed?</h3>
+      <p style={{fontSize:12, color:'var(--ink-dim)', margin:'0 0 14px'}}>
+        It's the random-number key. <strong>Same seed = same match</strong> (same shuffle, same dice). Useful if you want a do-over with identical cards, or to send your opponent a specific scenario. Just hit <strong>Random</strong> for a fresh game.
+      </p>
+      <div className="v2-row" style={{marginTop:8}}>
+        <label style={{ fontSize: 12, color: 'var(--ink-dim)' }}>seed</label>
         <input
           type="number"
           value={seed}
           onChange={(e) => onSeedChange(Number(e.target.value))}
-          title="Pick any number. Same seed = same match. Hit Random for variety."
           style={{ width: 100, padding: 8, background: '#1d1a17', color: 'var(--ink)', border: '1px solid var(--rule)', fontFamily: 'inherit' }}
         />
-        <button className="ghost" onClick={() => onSeedChange(Math.floor(Math.random() * 100000))} title="Roll a fresh seed">Random</button>
+        <button className="ghost" onClick={() => onSeedChange(Math.floor(Math.random() * 100000))}>Random</button>
         <button onClick={onStart}>Start match</button>
       </div>
       <p style={{ marginTop: 18, fontSize: 11, color:'var(--ink-dim)' }}>
         Decks are split from the starter pool — you and your opponent get DIFFERENT critters.
-        Arenas: 5 biomes picked at random. Hand cap: 3.
+        Arenas: 5 biomes picked at random. <strong>Starting hand: 5</strong>. <strong>Hand cap during play: 3</strong> —
+        you draw only if your hand is below 3, so the first turn or two you usually won't draw.
       </p>
     </div>
   );

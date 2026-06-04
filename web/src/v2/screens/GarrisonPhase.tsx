@@ -50,6 +50,10 @@ export function GarrisonPhase({ player, game, onSubmit }: Props) {
     setPlacements(placements.slice(0, -1));
   }
 
+  function removeAt(arenaIdx: number) {
+    setPlacements(placements.filter((p) => p.arena !== arenaIdx));
+  }
+
   function submit() {
     if (!aceAssigned) return;  // require Ace
     const actions: Action[] = [];
@@ -81,7 +85,7 @@ export function GarrisonPhase({ player, game, onSubmit }: Props) {
         </span>
       </div>
 
-      <div className="v2-section-title">Arenas (click an empty one after picking a card)</div>
+      <div className="v2-section-title">Arenas — pick a critter below, click an empty arena to place. Click a placed critter to pick it back up.</div>
       <div className="v2-arena-row">
         {pseudoView.arenas.map((a) => {
           const pending = visualGarrisons.find((p) => p.arena === a.index);
@@ -103,9 +107,9 @@ export function GarrisonPhase({ player, game, onSubmit }: Props) {
                 ...(pending.declaration ? { declaration: pending.declaration } : {}),
               } : null}
               oppGarrison={null}
-              selectable={!!selectedCard && !pending}
+              selectable={(!!selectedCard && !pending) || !!pending}
               selected={false}
-              onClick={() => placeAt(a.index)}
+              onClick={() => pending ? removeAt(a.index) : placeAt(a.index)}
             />
           );
         })}

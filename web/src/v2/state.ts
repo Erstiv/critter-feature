@@ -15,7 +15,8 @@ export type Phase =
 // What a just-played action produced — the "clean per-action output" cowork wants.
 export type ActionResult = {
   title: string;            // "Sniff revealed" / "Strike resolved" / "Bluff called!"
-  body: string[];           // 1-4 short lines (no dump)
+  narration?: string;       // The hero line — Cassius commentary for strikes. Rendered big + italic.
+  body: string[];           // 1-3 short detail lines (dice, costs, etc.)
   flavor?: 'good' | 'bad' | 'neutral' | 'spectacle';
 };
 
@@ -69,26 +70,35 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
       const att = strikeEv.attackerName;
       const def = strikeEv.defenderName;
       const arenaBiome = _state.arenas[strikeEv.arena]!.biome;
-      const lines: string[] = [];
       const salt = (resultEv.aHits + 1) * 17 + (resultEv.bHits + 1) * 23 + strikeEv.arena * 31 + _state.log.length;
-      // Cassius-Vane-adjacent narrative line. Placeholder voice; cowork will replace.
-      lines.push(strikeCommentary({
+      const narration = strikeCommentary({
         strikeReq: strikeEv,
         strikeResult: resultEv,
         biome: arenaBiome,
         attackerName: att,
         defenderName: def,
-      }, salt));
+      }, salt);
+      const details: string[] = [];
       if (def !== null) {
-        lines.push(`(${att} ${resultEv.aHits} hits · ${def} ${resultEv.bHits} hits — ${arenaBiome})`);
+        details.push(`${att} rolled ${resultEv.aHits} hits · ${def} rolled ${resultEv.bHits} hits.`);
       }
-      const flavor = resultEv.aceBurned
+      if (resultEv.burned.length > 0) {
+        details.push(`Burned: ${resultEv.burned.join(', ')}.`);
+      }
+      if (resultEv.aceBurned) {
+        details.push(`🦂 ACE BURNED — opponent's hidden champion is now revealed and the rest of their critters are exposed.`);
+      }
+      const flavor: NonNullable<ActionResult['flavor']> = resultEv.aceBurned
         ? 'spectacle'
         : (resultEv.winner === asker ? 'good' : (resultEv.winner === 'tie' ? 'neutral' : 'bad'));
       const title = resultEv.aceBurned
-        ? '🦂 Assassination'
-        : (resultEv.winner === 'tie' ? 'Bounce' : (def === null ? 'Banner planted' : 'Strike'));
-      return { title, body: lines, flavor };
+        ? '🦂 ASSASSINATION'
+        : (resultEv.winner === 'tie'
+          ? `Bounce — ${arenaBiome}`
+          : (def === null
+            ? `Banner planted at ${arenaBiome}`
+            : `${arenaBiome} — ${resultEv.winner === asker ? 'You win' : 'You lose'}`));
+      return { title, narration, body: details, flavor };
     }
     case 'Redeploy': {
       return { title: 'Redeployed', body: [`Moved garrison; Dug-In bonus lost.`], flavor: 'neutral' };
@@ -109,7 +119,11 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
       }
     }
     case 'EndTurn': {
-      return { title: 'Turn ended', body: [`Drew 1 (if under hand cap).`], flavor: 'neutral' };
+      const drew = newEvents.some((e) => e.t === 'draw');
+      const body = drew
+        ? [`Drew 1 card.`]
+        : [`No draw (hand at cap of ${_state.config.handCap}).`];
+      return { title: 'Turn ended', body, flavor: 'neutral' };
     }
   }
 }
