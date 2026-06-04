@@ -76,13 +76,10 @@ function applyGarrison(state: GameState, player: PlayerId, action: Extract<Actio
   ns.garrisons.push(garrison);
   ns.arenas[action.arena]!.garrisons[player] = garrison;
 
-  // Empty-arena Hide claims the banner (Elliot's intuition 2026-06-04: "if a player
-  // is the only one in the arena don't they own it?"). If the opponent shows up
-  // later via attack, the banner can flip in the resulting clash.
-  const opponentPresent = ns.arenas[action.arena]!.garrisons[otherPlayer(player)] !== null;
-  if (!opponentPresent && ns.arenas[action.arena]!.banner === null) {
-    ns.arenas[action.arena]!.banner = player;
-  }
+  // (Empty-arena auto-banner from Elliot's round-3 intuition was REVERTED in
+  // round-4: it triggered an instant Glory win during setup whenever a player
+  // placed 3+ garrisons in non-overlapping arenas. Per spec, banners are planted
+  // via Strike. Memo'd cowork for design ratification.)
 
   if (action.placeAce) ns.players[player].aceGarrisonId = garrison.id;
 
