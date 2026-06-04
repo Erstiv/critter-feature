@@ -518,3 +518,37 @@
   margin-top: 4px;
   line-height: 1.4;
 }
+
+/* Toast — inline non-blocking notice for informational results */
+.v2-toast {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  background: var(--panel);
+  border: 1px solid var(--good);
+  border-left: 4px solid var(--good);
+  border-radius: 4px;
+  padding: 10px 14px;
+  min-width: 220px;
+  max-width: 360px;
+  z-index: 60;
+  cursor: pointer;
+  animation: v2-toast-in 0.2s ease-out;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+@keyframes v2-toast-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.v2-toast-title {
+  font-family: var(--font-display);
+  color: var(--good);
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+.v2-toast-line {
+  color: var(--ink-dim);
+  font-size: 11px;
+  margin: 2px 0;
+}

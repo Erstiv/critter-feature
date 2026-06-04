@@ -9,6 +9,7 @@ import { GarrisonPhase } from './screens/GarrisonPhase.tsx';
 import { Turn } from './screens/Turn.tsx';
 import { Finale } from './screens/Finale.tsx';
 import { ActionResult } from './components/ActionResult.tsx';
+import { Toast } from './components/Toast.tsx';
 import { runAction, type ActionResult as AR, type Phase } from './state.ts';
 import './styles.css';
 
@@ -155,14 +156,19 @@ export function V2App() {
           onAction={(a) => {
             const ok = dispatch(phase.player, a);
             if (ok && a.kind === 'EndTurn') {
-              // After EndTurn, hand the device over.
+              // After EndTurn, suppress any pending result (the pass-device gate
+              // is the signal that the turn ended; a 'Drew 1 card' toast on top
+              // of it is noise). Cowork a18beedd.
+              setPendingResult(null);
               const next: PlayerId = phase.player === 'p1' ? 'p2' : 'p1';
               setPhase({ kind: 'pass-to-turn', player: next });
             }
           }}
         />
         {pendingResult && (
-          <ActionResult result={pendingResult} onDismiss={() => setPendingResult(null)} />
+          pendingResult.inline
+            ? <Toast result={pendingResult} onDismiss={() => setPendingResult(null)} />
+            : <ActionResult result={pendingResult} onDismiss={() => setPendingResult(null)} />
         )}
       </>
     );

@@ -19,6 +19,11 @@ export type ActionResult = {
   liveInput?: CommentaryInput; // Optional: if set, ActionResult kicks off live commentate + swaps in.
   body: string[];           // 1-3 short detail lines (dice, costs, etc.)
   flavor?: 'good' | 'bad' | 'neutral' | 'spectacle';
+  // Cowork a18beedd: purely-informational results (Garrison / EndTurn / Redeploy
+  // / Declare) render as an inline toast that auto-dismisses, NOT a modal-with-
+  // Continue. Strike / Scout / Call / Ace-burn stay as modals (real decisions
+  // or private info the player wants to actually read).
+  inline?: boolean;
 };
 
 export type AppState = {
@@ -48,11 +53,11 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
   switch (action.kind) {
     case 'Garrison': {
       const ev = newEvents.find((e) => e.t === 'garrison');
-      if (ev?.t !== 'garrison') return { title: 'Garrisoned', body: [] };
+      if (ev?.t !== 'garrison') return { title: 'Garrisoned', body: [], inline: true };
       const lines = [`Placed face-down at arena ${ev.arena + 1}.`];
       if (action.declaration) lines.push(`Declared: "${action.declaration}"`);
       if (action.placeAce) lines.push(`★ Ace tucked under this garrison.`);
-      return { title: 'Garrisoned', body: lines, flavor: 'neutral' };
+      return { title: 'Garrisoned', body: lines, flavor: 'neutral', inline: true };
     }
     case 'Scout': {
       const result = newEvents.find((e) => e.t === 'scout-result-private');
@@ -116,10 +121,10 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
       return { title, narration, liveInput, body: details, flavor };
     }
     case 'Redeploy': {
-      return { title: 'Redeployed', body: [`Moved garrison; Dug-In bonus lost.`], flavor: 'neutral' };
+      return { title: 'Moved', body: [`Critter slips into the dark; Dug-In bonus lost.`], flavor: 'neutral', inline: true };
     }
     case 'Declare': {
-      return { title: 'Declared', body: [`You publicly named arena ${action.arena + 1} as "${action.declaration}".`], flavor: 'neutral' };
+      return { title: 'Declared', body: [`Publicly named arena ${action.arena + 1} as "${action.declaration}".`], flavor: 'neutral', inline: true };
     }
     case 'Call': {
       const callEv = newEvents.find((e) => e.t === 'call');
@@ -138,7 +143,7 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
       const body = drew
         ? [`Drew 1 card.`]
         : [`No draw (hand at cap of ${_state.config.handCap}).`];
-      return { title: 'Turn ended', body, flavor: 'neutral' };
+      return { title: 'Turn ended', body, flavor: 'neutral', inline: true };
     }
   }
 }
