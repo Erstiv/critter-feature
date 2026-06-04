@@ -3,7 +3,8 @@
     "purpose": "Info-button content for Critter Feature. Keyed by critter name (must match critter_roster.json). identity = one short line (what it is + how it fights). funFacts = 2-3 short, real, fact-checked bullets. Missing key => hide the (i).",
     "batch": "1 of N — active seed-42 decks + canonical starters. Rest of the 127 to follow.",
     "author": "cowork",
-    "updated": "2026-06-04"
+    "updated": "2026-06-04",
+    "batches": "batch1 + batch2 (full 127 coverage)"
   },
   "Tardigrade": {
     "identity": "The unkillable micro-animal — wins by simply refusing to die.",
@@ -235,6 +236,790 @@
       "It uses tools, plans ahead, and can mimic sounds, including human words.",
       "Ravens play — sliding down snowbanks and tumbling in the air seemingly for fun.",
       "They recognise individual faces and hold grudges."
+    ]
+  },
+  "Polar Bear": {
+    "identity": "The Arctic's apex hunter — a bear built for the ice.",
+    "funFacts": [
+      "Its skin is black and its fur is hollow and clear, not actually white.",
+      "It can smell a seal through three feet of packed snow.",
+      "It's such a strong swimmer it's classified as a marine mammal."
+    ]
+  },
+  "Black Panther": {
+    "identity": "Not a species — a leopard or jaguar wearing midnight.",
+    "funFacts": [
+      "'Black panther' just means a big cat with a black coat; its spots are still there under the dark.",
+      "The extra pigment may help it hunt unseen at night.",
+      "In bright light you can sometimes see the hidden rosettes."
+    ]
+  },
+  "Opossum": {
+    "identity": "North America's marsupial survivor — plays dead to live.",
+    "funFacts": [
+      "When terrified it involuntarily 'plays possum,' going limp and foul-smelling.",
+      "It's highly resistant to snake venom and rarely carries rabies.",
+      "It eats thousands of ticks in a season."
+    ]
+  },
+  "Platypus": {
+    "identity": "The riddle mammal — it lays eggs and hunts by electricity.",
+    "funFacts": [
+      "It's one of the only mammals that lays eggs.",
+      "Its bill senses the faint electric fields of prey underwater, eyes shut.",
+      "Males have a venomous spur on each hind leg."
+    ]
+  },
+  "Orca": {
+    "identity": "The ocean's top predator — a dolphin that hunts in packs.",
+    "funFacts": [
+      "It's actually the largest member of the dolphin family.",
+      "Different pods have distinct dialects and hunting cultures passed down for generations.",
+      "No wild orca is known to have killed a human."
+    ]
+  },
+  "Dolphin": {
+    "identity": "The grinning genius of the sea.",
+    "funFacts": [
+      "It sleeps with half its brain awake so it never stops breathing.",
+      "It 'sees' with sound, using echolocation to map its world.",
+      "Each dolphin has a signature whistle — effectively a name."
+    ]
+  },
+  "Bald Eagle": {
+    "identity": "America's emblem — a fish-hawk with a seven-foot wingspan.",
+    "funFacts": [
+      "It isn't bald; 'bald' comes from an old word for white-headed.",
+      "Its eyesight is roughly four times sharper than a human's.",
+      "Its huge stick nests can weigh as much as a small car."
+    ]
+  },
+  "Ant": {
+    "identity": "The tireless soldier — unstoppable in numbers.",
+    "funFacts": [
+      "It can carry many times its own body weight.",
+      "Ant colonies behave like a single 'superorganism.'",
+      "Ants have farmed fungus and herded aphids for millions of years."
+    ]
+  },
+  "Grizzly Bear": {
+    "identity": "A mountain heavyweight with a shoulder hump of pure muscle.",
+    "funFacts": [
+      "That shoulder hump powers its digging and devastating swipes.",
+      "It can sprint faster than a racehorse over short distances.",
+      "It eats almost anything, from berries to elk to moths."
+    ]
+  },
+  "Squirrel": {
+    "identity": "The acrobat of the treetops — and an accidental forester.",
+    "funFacts": [
+      "It plants thousands of trees by forgetting where it buried nuts.",
+      "Its ankles can rotate so it climbs down headfirst.",
+      "It fakes burying food to fool watching thieves."
+    ]
+  },
+  "Armadillo": {
+    "identity": "A little armored tank that can roll up its name.",
+    "funFacts": [
+      "The three-banded armadillo can curl into a sealed ball.",
+      "It can hold its breath and walk along the bottom of streams.",
+      "Nine-banded armadillos almost always give birth to identical quadruplets."
+    ]
+  },
+  "Great White Shark": {
+    "identity": "The ocean's most famous predator — built around teeth.",
+    "funFacts": [
+      "It can detect a single drop of blood in a huge volume of water.",
+      "It loses and replaces thousands of teeth over its life.",
+      "It breaches clear out of the water to ambush seals from below."
+    ]
+  },
+  "Barracuda": {
+    "identity": "A torpedo of teeth in the shallows.",
+    "funFacts": [
+      "It strikes in fast, slashing bursts to cut prey in two.",
+      "It's drawn to flashes — shiny objects can trigger a strike.",
+      "It can hold nearly still, then accelerate explosively."
+    ]
+  },
+  "Vulture": {
+    "identity": "The sky's clean-up crew — death's quiet recycler.",
+    "funFacts": [
+      "Its stomach acid is strong enough to kill anthrax and cholera.",
+      "Its bald head stays cleaner when feeding inside carcasses.",
+      "It can soar for hours on rising thermals without a wingbeat."
+    ]
+  },
+  "Mosquito": {
+    "identity": "The deadliest animal on Earth — by the diseases it carries.",
+    "funFacts": [
+      "Only the females bite; they need blood to make eggs.",
+      "It finds you by the carbon dioxide in your breath.",
+      "It kills more people each year than any other animal."
+    ]
+  },
+  "Lion": {
+    "identity": "The team hunter of the savanna — strength in the pride.",
+    "funFacts": [
+      "Lions are the only big cats that live in social groups.",
+      "A male's roar can be heard up to five miles away.",
+      "Females do most of the hunting, working together."
+    ]
+  },
+  "Inland Taipan": {
+    "identity": "The most venomous land snake alive — and famously shy.",
+    "funFacts": [
+      "A single bite carries enough venom to kill many adult humans.",
+      "Despite that, it's reclusive and bites people extremely rarely.",
+      "It changes color with the seasons to manage heat."
+    ]
+  },
+  "Brown Recluse": {
+    "identity": "A small, shy spider with a violin on its back and a nasty bite.",
+    "funFacts": [
+      "A dark violin-shaped mark sits behind its eyes.",
+      "It has six eyes instead of the usual eight.",
+      "It bites only when trapped against skin; most 'recluse bites' are misdiagnoses."
+    ]
+  },
+  "Mountain Goat": {
+    "identity": "The cliff dancer — at home where nothing else can stand.",
+    "funFacts": [
+      "Its soft, rubbery hoof pads grip sheer rock like climbing shoes.",
+      "It scales near-vertical cliffs to escape predators.",
+      "It isn't a true goat, but a goat-antelope."
+    ]
+  },
+  "Stingray": {
+    "identity": "A flattened, gliding shark-cousin with a barbed tail.",
+    "funFacts": [
+      "It buries in sand and senses prey by their electric fields.",
+      "Its tail barb is purely defensive, used only when stepped on.",
+      "It 'flies' through water by rippling its wing-like fins."
+    ]
+  },
+  "Narwhal": {
+    "identity": "The unicorn of the sea.",
+    "funFacts": [
+      "Its 'horn' is actually a single tooth that can grow nine feet long.",
+      "The tusk is packed with nerves and may sense the water around it.",
+      "It dives over a mile deep under Arctic ice."
+    ]
+  },
+  "Thorny Devil": {
+    "identity": "A walking pincushion that drinks with its skin.",
+    "funFacts": [
+      "Grooves between its spines wick water straight to its mouth.",
+      "It eats thousands of ants in a single meal.",
+      "A false 'head' on its neck fools predators."
+    ]
+  },
+  "Mantis Shrimp": {
+    "identity": "A pint-sized boxer with the fastest punch in nature.",
+    "funFacts": [
+      "Its club-strike accelerates like a bullet and can crack aquarium glass.",
+      "The punch is so fast it boils the water into imploding bubbles.",
+      "Its eyes carry more color receptors than any other known animal."
+    ]
+  },
+  "African Bush Elephant": {
+    "identity": "The largest land animal — a giant with a long memory.",
+    "funFacts": [
+      "Its trunk has tens of thousands of muscles and can pick up a single blade of grass.",
+      "It communicates in deep rumbles that travel for miles.",
+      "Herds are led by the oldest, wisest female."
+    ]
+  },
+  "White Rhino": {
+    "identity": "A two-ton grazer wearing a horn of hair.",
+    "funFacts": [
+      "Its horn is made of keratin — the same stuff as your fingernails.",
+      "'White' is likely a mistranslation of a word meaning 'wide,' for its lip.",
+      "It's the second-largest land mammal after the elephant."
+    ]
+  },
+  "Musk Ox": {
+    "identity": "An Ice Age survivor that forms a living fortress.",
+    "funFacts": [
+      "When threatened, the herd circles up, horns out, calves inside.",
+      "Its undercoat, qiviut, is warmer than wool and finer than cashmere.",
+      "It has roamed the Arctic since the age of mammoths."
+    ]
+  },
+  "Dung Beetle": {
+    "identity": "The strongman recycler that steers by the stars.",
+    "funFacts": [
+      "It can pull over a thousand times its own body weight.",
+      "It rolls dung balls in a straight line by navigating with the Milky Way.",
+      "It buries waste that would otherwise bury the plains."
+    ]
+  },
+  "Rhinoceros Beetle": {
+    "identity": "A horned tank — one of the strongest creatures for its size.",
+    "funFacts": [
+      "It can lift many times its own body weight relative to its size.",
+      "Males joust with their horns over mates.",
+      "It's completely harmless to humans despite the fearsome look."
+    ]
+  },
+  "Pistol Shrimp": {
+    "identity": "A shrimp that shoots a stunning bubble-gun.",
+    "funFacts": [
+      "Snapping its claw fires a bubble that stuns prey with a shockwave.",
+      "The snap is one of the loudest sounds in the ocean.",
+      "The collapsing bubble briefly flashes light and reaches scorching heat."
+    ]
+  },
+  "Coconut Crab": {
+    "identity": "The largest land crab — strong enough to crack a coconut.",
+    "funFacts": [
+      "Its claws grip with a force rivaling a lion's bite.",
+      "It climbs trees and can't swim as an adult — it would drown.",
+      "It can live for decades and grow a leg-span over three feet."
+    ]
+  },
+  "Water Buffalo": {
+    "identity": "The muscle of the wetlands — a horned heavyweight.",
+    "funFacts": [
+      "It wallows in mud to cool off and shed parasites.",
+      "Domesticated buffalo plow fields and feed much of the world.",
+      "Wild herds will mob predators as big as tigers."
+    ]
+  },
+  "Chimpanzee": {
+    "identity": "Our closest cousin — a tool-using strategist.",
+    "funFacts": [
+      "It shares around 98% of its DNA with humans.",
+      "It makes and uses tools, from termite-fishing sticks to leaf sponges.",
+      "Pound for pound it's far stronger than a person."
+    ]
+  },
+  "Octopus": {
+    "identity": "The shape-shifting genius with eight arms and three hearts.",
+    "funFacts": [
+      "Most of its neurons are in its arms, which can act semi-independently.",
+      "It can change color and texture in an instant to vanish.",
+      "It has three hearts and blue, copper-based blood."
+    ]
+  },
+  "African Grey Parrot": {
+    "identity": "The talking brain of the bird world.",
+    "funFacts": [
+      "It can learn hundreds of words and use them in context.",
+      "Some have shown the reasoning of a young child.",
+      "It can mimic voices and sounds with eerie accuracy."
+    ]
+  },
+  "Pig": {
+    "identity": "A smart, social omnivore that's cleaner than its reputation.",
+    "funFacts": [
+      "It's widely considered smarter than a dog.",
+      "It rolls in mud to cool down, since it can't sweat well.",
+      "It has an excellent sense of smell, used to find truffles."
+    ]
+  },
+  "Rat": {
+    "identity": "The ultimate survivor — clever, social, everywhere.",
+    "funFacts": [
+      "It laughs when tickled, in ultrasonic squeaks.",
+      "It can squeeze through a gap the size of a quarter.",
+      "It shows empathy, freeing trapped cage-mates before taking food."
+    ]
+  },
+  "Orangutan": {
+    "identity": "The thoughtful red ape of the rainforest canopy.",
+    "funFacts": [
+      "It builds a fresh sleeping nest in the trees almost every night.",
+      "It uses leaves as gloves, umbrellas, and napkins.",
+      "Its name means 'person of the forest.'"
+    ]
+  },
+  "Giraffe": {
+    "identity": "The tallest animal — a long-necked browser of the treetops.",
+    "funFacts": [
+      "Its neck has just seven bones, the same number as yours.",
+      "Its tongue is dark, nearly black, and around 18 inches long.",
+      "It only needs a few minutes of sleep a day."
+    ]
+  },
+  "Hagfish": {
+    "identity": "The slime artist of the deep — a knot-tying scavenger.",
+    "funFacts": [
+      "It can drown an attacker by gushing buckets of slime in seconds.",
+      "It ties itself in a knot to scrape that slime off and feed.",
+      "It has no jaws and a skull but no spine."
+    ]
+  },
+  "Lungfish": {
+    "identity": "A fish that breathes air and naps through droughts.",
+    "funFacts": [
+      "It gulps air with true lungs and can drown if kept underwater.",
+      "It survives dry seasons cocooned in mud for months — even years.",
+      "Its lineage stretches back hundreds of millions of years."
+    ]
+  },
+  "Glass Frog": {
+    "identity": "A frog you can almost see through.",
+    "funFacts": [
+      "Its translucent belly reveals its beating heart and organs.",
+      "It hides its red blood in its liver while sleeping to stay invisible.",
+      "Males guard the eggs on leaves above streams."
+    ]
+  },
+  "Sea Cucumber": {
+    "identity": "The ocean floor's humble recycler with a wild defense.",
+    "funFacts": [
+      "Threatened, it can shoot its own sticky guts at an attacker — and regrow them.",
+      "It breathes through its rear end.",
+      "It cleans and recycles sediment like an earthworm of the sea."
+    ]
+  },
+  "Bombardier Beetle": {
+    "identity": "A beetle that fires a boiling chemical cannon.",
+    "funFacts": [
+      "It mixes chemicals to blast a near-boiling spray from its rear.",
+      "The spray fires in rapid machine-gun pulses.",
+      "It can aim the jet in almost any direction."
+    ]
+  },
+  "Aye-Aye": {
+    "identity": "A nocturnal lemur that hunts grubs like a woodpecker.",
+    "funFacts": [
+      "It taps on wood and listens for hollow tunnels with huge ears.",
+      "Its long, skeletal middle finger hooks grubs out of the bark.",
+      "It's the world's largest nocturnal primate."
+    ]
+  },
+  "Tarsier": {
+    "identity": "A tiny primate that is mostly eyes.",
+    "funFacts": [
+      "Each eyeball is bigger than its brain.",
+      "It can't move its eyes, so it swivels its head almost all the way around.",
+      "It can leap many times its body length between trees."
+    ]
+  },
+  "Maned Wolf": {
+    "identity": "The 'fox on stilts' of the South American grasslands.",
+    "funFacts": [
+      "It isn't a wolf or a fox, but its own unique canid.",
+      "Its very long legs help it see over tall grass.",
+      "Its scent-marking smells startlingly like cannabis."
+    ]
+  },
+  "Blobfish": {
+    "identity": "The deep-sea 'ugliest animal' — but only at the surface.",
+    "funFacts": [
+      "At its home depth, pressure gives it a normal fish shape.",
+      "It looks like a sad blob only because decompression ruins it.",
+      "It barely moves, drifting just above the seafloor to feed."
+    ]
+  },
+  "Pink Fairy Armadillo": {
+    "identity": "The smallest armadillo — a rose-shelled sand swimmer.",
+    "funFacts": [
+      "It's barely the size of a hand and almost never seen.",
+      "It 'swims' through loose desert sand and burrows in seconds.",
+      "Its pink shell flushes with blood to release heat."
+    ]
+  },
+  "Star-Nosed Mole": {
+    "identity": "A blind burrower with the fastest snack reflex on Earth.",
+    "funFacts": [
+      "Its 22 fleshy nose-tentacles are the most sensitive touch organ known.",
+      "It identifies and eats prey in under a quarter of a second.",
+      "It can smell underwater by blowing and re-inhaling bubbles."
+    ]
+  },
+  "Hoatzin": {
+    "identity": "The 'stinkbird' — a leaf-eater that ferments like a cow.",
+    "funFacts": [
+      "It digests leaves by fermentation, giving it a manure-like smell.",
+      "Its chicks are born with claws on their wings to climb.",
+      "It's an evolutionary oddball with no close living relatives."
+    ]
+  },
+  "Goblin Shark": {
+    "identity": "The deep-sea 'living fossil' with jaws that shoot out to grab prey.",
+    "funFacts": [
+      "Its jaws fling forward off its face to snatch prey, then retract.",
+      "Its pink color comes from blood vessels showing through translucent skin.",
+      "Its lineage goes back roughly 125 million years."
+    ]
+  },
+  "Pangolin": {
+    "identity": "The walking pinecone — the only mammal clad in scales.",
+    "funFacts": [
+      "It rolls into an armored ball so tight even lions give up.",
+      "Its sticky tongue can be longer than its body.",
+      "It's the most trafficked mammal in the world."
+    ]
+  },
+  "Earthworm": {
+    "identity": "The silent engineer that builds the soil.",
+    "funFacts": [
+      "It eats its way through earth, enriching it as it goes.",
+      "If cut, it can sometimes regrow its tail end.",
+      "Charles Darwin spent decades studying its role in making fertile land."
+    ]
+  },
+  "Termite": {
+    "identity": "The tiny architect — builder of skyscraper mounds.",
+    "funFacts": [
+      "Its mounds use natural air-conditioning that inspires human buildings.",
+      "Colonies can number in the millions around a single queen.",
+      "It digests wood with the help of microbes in its gut."
+    ]
+  },
+  "Spectral Bat": {
+    "identity": "The Americas' largest bat — a carnivore of the night.",
+    "funFacts": [
+      "It hunts birds, rodents, and even other bats.",
+      "Its wingspan can approach a metre across.",
+      "Pairs are unusually devoted, often roosting as a family."
+    ]
+  },
+  "Whale Shark": {
+    "identity": "The largest fish alive — a gentle, spotted giant.",
+    "funFacts": [
+      "It can grow longer than a school bus yet eats tiny plankton.",
+      "Each one's pattern of spots is unique, like a fingerprint.",
+      "It filters thousands of litres of water an hour to feed."
+    ]
+  },
+  "Manta Ray": {
+    "identity": "The graceful giant of the open water — a flying filter.",
+    "funFacts": [
+      "Its 'wings' can span more than 20 feet.",
+      "It has the largest brain of any fish and may recognise itself in mirrors.",
+      "It does barrel-roll somersaults to feed on plankton clouds."
+    ]
+  },
+  "Box Jellyfish": {
+    "identity": "A near-invisible drifter with among the deadliest venom.",
+    "funFacts": [
+      "Its sting is one of the most potent in the animal kingdom.",
+      "Unlike most jellyfish, it has clusters of true eyes and swims actively.",
+      "Its bell is cube-shaped, giving it its name."
+    ]
+  },
+  "Blue Dragon (Glaucus)": {
+    "identity": "A thumbnail sea slug that steals its prey's weapons.",
+    "funFacts": [
+      "It eats the venomous Portuguese man o' war and stores the stingers.",
+      "It floats upside-down on the surface tension of the sea.",
+      "Its concentrated stolen venom can pack a stronger sting than its prey's."
+    ]
+  },
+  "Vampire Squid": {
+    "identity": "A deep-sea phantom that lives on falling 'snow.'",
+    "funFacts": [
+      "It isn't a true squid or octopus, but its own ancient lineage.",
+      "It eats 'marine snow' — drifting bits of dead matter.",
+      "Threatened, it turns its cloak of arms inside-out over itself."
+    ]
+  },
+  "Harp Sponge": {
+    "identity": "A deep-sea sponge that turned predator.",
+    "funFacts": [
+      "Unlike most sponges, it traps and digests tiny animals.",
+      "Its harp-like branches are covered in velcro-like hooks.",
+      "It was only discovered in the deep ocean in recent years."
+    ]
+  },
+  "Komodo Dragon": {
+    "identity": "The largest lizard — a venomous ambush giant.",
+    "funFacts": [
+      "It can take down prey as large as water buffalo.",
+      "Its bite delivers venom that prevents blood from clotting.",
+      "Females can sometimes reproduce without a male."
+    ]
+  },
+  "Mimic Octopus": {
+    "identity": "The ocean's great impersonator.",
+    "funFacts": [
+      "It can shape itself to imitate sea snakes, lionfish, and flatfish.",
+      "It picks which animal to mimic based on the threat nearby.",
+      "It was only discovered by science in the 1990s."
+    ]
+  },
+  "Kakapo": {
+    "identity": "The world's heaviest parrot — flightless, nocturnal, and rare.",
+    "funFacts": [
+      "It can't fly; it climbs trees and 'parachutes' down.",
+      "Males boom like a bass drum all night to attract mates.",
+      "Only a couple hundred survive, each with a name."
+    ]
+  },
+  "Superb Bird-of-Paradise": {
+    "identity": "A showman that transforms into a dancing smiley-face.",
+    "funFacts": [
+      "The male spreads his feathers into a black oval with two bright 'eyes.'",
+      "He snaps and dances for a famously hard-to-impress female.",
+      "His black plumage is among the darkest material in nature."
+    ]
+  },
+  "Ostrich": {
+    "identity": "The biggest bird alive — it gave up flight for speed.",
+    "funFacts": [
+      "It can sprint over 40 mph and outrun most predators.",
+      "Its eye is bigger than its brain.",
+      "A single kick can be powerful enough to kill a lion."
+    ]
+  },
+  "Fossa": {
+    "identity": "Madagascar's top predator — part cat, part mongoose.",
+    "funFacts": [
+      "It's the island's largest carnivore and hunts lemurs through the trees.",
+      "It can climb down trunks headfirst like a squirrel.",
+      "It's more closely related to the mongoose than to cats."
+    ]
+  },
+  "Capybara": {
+    "identity": "The world's largest rodent — unbothered and beloved.",
+    "funFacts": [
+      "It's the size of a big dog and totally at home in water.",
+      "It's so easygoing that other animals lounge on top of it.",
+      "It lives in chilled-out social herds near rivers."
+    ]
+  },
+  "Quokka": {
+    "identity": "The 'happiest animal' — a smiling little marsupial.",
+    "funFacts": [
+      "Its facial shape makes it look permanently cheerful.",
+      "It's famous for posing in tourists' selfies.",
+      "It lives mainly on a few islands off Western Australia."
+    ]
+  },
+  "Hyrax": {
+    "identity": "A guinea-pig-sized animal whose closest cousin is the elephant.",
+    "funFacts": [
+      "Despite the looks, it's related to elephants and manatees.",
+      "It has tiny tusks, like miniature elephant ivory.",
+      "It basks in the sun for hours because it regulates heat poorly."
+    ]
+  },
+  "Okapi": {
+    "identity": "The forest giraffe — half-zebra, half-mystery.",
+    "funFacts": [
+      "It's the giraffe's only living relative, with a shorter neck.",
+      "Its striped legs help it vanish in dappled jungle light.",
+      "It was unknown to outside science until the 1900s."
+    ]
+  },
+  "Red Panda": {
+    "identity": "A fire-colored bamboo-eater that's a panda in name only.",
+    "funFacts": [
+      "It belongs to its own family, not the bear or raccoon line.",
+      "It has a false 'thumb' to grip bamboo.",
+      "It wraps its bushy tail around itself like a blanket."
+    ]
+  },
+  "Markhor Goat": {
+    "identity": "The screw-horned wild goat of the high crags.",
+    "funFacts": [
+      "Its corkscrew horns can grow over five feet long.",
+      "It scales sheer Himalayan cliffs with ease.",
+      "It's the national animal of Pakistan."
+    ]
+  },
+  "Raccoon Dog (Tanuki)": {
+    "identity": "A masked canid that naps through winter.",
+    "funFacts": [
+      "It's a true dog relative that just looks like a raccoon.",
+      "It's the only canid that enters winter torpor, a light hibernation.",
+      "It's a legendary shapeshifter in Japanese folklore."
+    ]
+  },
+  "Velvet Worm": {
+    "identity": "A living fossil that hunts with a slime cannon.",
+    "funFacts": [
+      "It shoots jets of sticky slime to glue prey in place.",
+      "It has barely changed in hundreds of millions of years.",
+      "It walks on rows of soft, stubby leg-nubs."
+    ]
+  },
+  "Colugo": {
+    "identity": "The most graceful gliding mammal in the trees.",
+    "funFacts": [
+      "A membrane stretches from neck to tail-tip, even between its toes.",
+      "It can glide the length of a football field between trees.",
+      "Despite the nickname 'flying lemur,' it neither flies nor is a lemur."
+    ]
+  },
+  "Rakali (Water Rat)": {
+    "identity": "Australia's native otter-rat — a riverbank hunter.",
+    "funFacts": [
+      "It has webbed hind feet and a waterproof coat.",
+      "It learned to flip toxic cane toads to eat only the safe parts.",
+      "It hunts fish, frogs, and even small birds."
+    ]
+  },
+  "Ghost Bat": {
+    "identity": "Australia's only carnivorous bat — a pale night hunter.",
+    "funFacts": [
+      "It wraps prey in its wings and bites the skull.",
+      "Its pale, semi-transparent wings give it a ghostly look.",
+      "It hunts birds, frogs, and other bats."
+    ]
+  },
+  "Patagonian Mara": {
+    "identity": "A long-legged rodent that lives like a tiny deer.",
+    "funFacts": [
+      "It bounds and stots across the plains like an antelope.",
+      "It's one of the largest rodents in the world.",
+      "Pairs mate for life — rare among rodents."
+    ]
+  },
+  "Emperor Tamarin": {
+    "identity": "A tiny monkey with a magnificent white mustache.",
+    "funFacts": [
+      "Its sweeping white whiskers reportedly recall a German emperor.",
+      "It's small enough to sit in your hand.",
+      "Groups stay in touch with bird-like trills."
+    ]
+  },
+  "Siphonophore": {
+    "identity": "Not one animal but a colony living as one — and possibly the longest creature alive.",
+    "funFacts": [
+      "It's made of many specialized bodies working together as a single being.",
+      "One deep-sea giant was measured longer than a blue whale.",
+      "The Portuguese man o' war is a siphonophore, not a jellyfish."
+    ]
+  },
+  "Jewel Wasp": {
+    "identity": "The zombie-maker — a wasp that turns roaches into puppets.",
+    "funFacts": [
+      "Its sting flips a precise switch in a cockroach's brain.",
+      "The dazed roach then walks obediently to the wasp's burrow.",
+      "Its larva grows up inside the still-living host."
+    ]
+  },
+  "Human (Male)": {
+    "identity": "The endurance generalist — a brain that builds tools and tells stories.",
+    "funFacts": [
+      "Humans are among the best long-distance runners in the animal world.",
+      "We can throw fast and accurately better than any other species.",
+      "Our oversized brains let us cooperate in groups of millions."
+    ]
+  },
+  "Human (Female)": {
+    "identity": "The endurance generalist — a brain that builds tools and tells stories.",
+    "funFacts": [
+      "Humans are among the best long-distance runners in the animal world.",
+      "Language lets us pool knowledge across generations.",
+      "Our species reshaped nearly every ecosystem on Earth."
+    ]
+  },
+  "Nautilus": {
+    "identity": "A living fossil cephalopod that jets through the deep in a coiled shell.",
+    "funFacts": [
+      "It has drifted the oceans almost unchanged for hundreds of millions of years.",
+      "It moves by jet propulsion, squirting water from a tube.",
+      "Its spiral shell is divided into gas-filled buoyancy chambers."
+    ]
+  },
+  "Cicada": {
+    "identity": "The patient screamer — years underground for weeks in the sun.",
+    "funFacts": [
+      "Some broods spend 13 or 17 years underground before emerging together.",
+      "The males are among the loudest insects on Earth.",
+      "They emerge in such huge numbers that predators simply can't eat them all."
+    ]
+  },
+  "Cuttlefish": {
+    "identity": "The cephalopod color-magician.",
+    "funFacts": [
+      "It can flash shifting patterns across its skin in a heartbeat.",
+      "It's likely colorblind yet matches colors perfectly — perhaps by sensing polarized light.",
+      "Its pupils are a strange W shape."
+    ]
+  },
+  "Wood Frog": {
+    "identity": "The frog that freezes solid and lives.",
+    "funFacts": [
+      "In winter its heart stops and most of its body turns to ice.",
+      "It floods its cells with natural antifreeze to survive.",
+      "Come spring, it thaws and hops away as if nothing happened."
+    ]
+  },
+  "Naked Mole Rat": {
+    "identity": "A wrinkled underground oddball that barely ages.",
+    "funFacts": [
+      "It lives in bee-like colonies ruled by a single breeding queen.",
+      "It almost never gets cancer and feels no sting from acid.",
+      "It can survive long stretches with almost no oxygen."
+    ]
+  },
+  "Orb-Weaver Spider": {
+    "identity": "The patient engineer of the dew-jeweled web.",
+    "funFacts": [
+      "It often rebuilds its entire wheel-shaped web every night.",
+      "Its silk is, for its weight, tougher than steel.",
+      "It senses prey through vibrations in the threads."
+    ]
+  },
+  "Horseshoe Crab": {
+    "identity": "A 450-million-year-old living fossil with blue blood.",
+    "funFacts": [
+      "Its blue blood is used to test medicines for contamination.",
+      "It's more closely related to spiders than to crabs.",
+      "It has survived essentially unchanged since before the dinosaurs."
+    ]
+  },
+  "Peacock Spider": {
+    "identity": "A grain-of-rice spider that dances in neon.",
+    "funFacts": [
+      "The male lifts a vivid, patterned flap and dances to court a mate.",
+      "It's only a few millimetres long.",
+      "A poor performance can get the suitor eaten."
+    ]
+  },
+  "AI": {
+    "identity": "The newcomer in the bracket — intelligence without a body.",
+    "funFacts": [
+      "It has no muscles, claws, or venom — only pattern and prediction.",
+      "Its 'reach' is whatever tools and machines it can direct.",
+      "In this arena it's the wildcard: powerful in mind, fragile in the flesh."
+    ]
+  },
+  "Arctic Tern": {
+    "identity": "The migration champion — it chases endless summer pole to pole.",
+    "funFacts": [
+      "It flies from the Arctic to the Antarctic and back every year.",
+      "Over a lifetime its travels can equal several trips to the Moon.",
+      "It sees more daylight than any other animal."
+    ]
+  },
+  "Wandering Albatross": {
+    "identity": "The widest wings in the world — a tireless ocean glider.",
+    "funFacts": [
+      "Its wingspan can exceed 11 feet, the largest of any living bird.",
+      "It can glide for hours, even sleep on the wing, without flapping.",
+      "It may circle the entire Southern Ocean in a single journey."
+    ]
+  },
+  "Common Swift": {
+    "identity": "The bird that lives in the air.",
+    "funFacts": [
+      "It can stay airborne for months at a time without landing.",
+      "It eats, sleeps, and even mates on the wing.",
+      "Its feet are so small it can barely walk on the ground."
+    ]
+  },
+  "Emperor Penguin": {
+    "identity": "The Antarctic endurance king — it breeds in the cruelest winter.",
+    "funFacts": [
+      "Males balance the egg on their feet through months of polar dark.",
+      "It dives deeper and longer than any other bird.",
+      "Colonies huddle and rotate so everyone shares the warm center."
+    ]
+  },
+  "Slime Mold": {
+    "identity": "A brainless blob that solves mazes — the ultimate underdog.",
+    "funFacts": [
+      "It has no brain or nerves yet finds the shortest path through a maze.",
+      "It can recreate efficient transport networks like a city's rail map.",
+      "It's neither plant, animal, nor fungus — a category of its own."
     ]
   }
 }
