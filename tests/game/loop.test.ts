@@ -157,6 +157,31 @@ describe('v0.2 strike — clash uses engine', () => {
   });
 });
 
+describe('v0.2 banner rule (d) — auto-claim visually, Glory needs ≥1 strike-won', () => {
+  it('auto-claim banners count toward the 3 but cannot win Glory alone', () => {
+    const rand = mulberry32(22);
+    const deck = [cByName('Tardigrade'), cByName('Sea Otter'), cByName('Jaguar'), cByName('Raven'), cByName('Scorpion')];
+    let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Plains', 'Desert', 'Sky', 'Wetland/Mud', 'Jungle'], rand });
+    // P1 auto-claims arenas 0, 1, 2 via Hide. P2 takes arena 4 to avoid getting steamrolled.
+    state = step(state, 'p1', { kind: 'Garrison', cardName: 'Tardigrade', arena: 0, placeAce: true });
+    state = step(state, 'p1', { kind: 'EndTurn' });
+    state = step(state, 'p2', { kind: 'Garrison', cardName: 'Jaguar', arena: 4 });
+    state = step(state, 'p2', { kind: 'EndTurn' });
+    state = step(state, 'p1', { kind: 'Garrison', cardName: 'Sea Otter', arena: 1 });
+    state = step(state, 'p1', { kind: 'EndTurn' });
+    state = step(state, 'p2', { kind: 'Garrison', cardName: 'Scorpion', arena: 3 });
+    state = step(state, 'p2', { kind: 'EndTurn' });
+    state = step(state, 'p1', { kind: 'Garrison', cardName: 'Raven', arena: 2 });
+
+    // P1 now has 3 banners (all auto-claimed during Hide). Glory must NOT fire yet.
+    const p1Banners = state.arenas.filter((a) => a.banner === 'p1').length;
+    expect(p1Banners).toBe(3);
+    const strikeWonP1 = state.arenas.filter((a) => a.banner === 'p1' && a.bannerProvenance === 'strike').length;
+    expect(strikeWonP1).toBe(0);
+    expect(state.winner).toBeNull();
+  });
+});
+
 describe('v0.2 Ace opt-out', () => {
   it('player without an Ace cannot be assassinated; opponent has to win via Glory or Endurance', () => {
     const rand = mulberry32(7);

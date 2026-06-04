@@ -109,6 +109,7 @@ export function applyStrike(
       ns.arenas[action.targetArena]!.garrisons[attacker] = attackingGarrison;
     }
     ns.arenas[action.targetArena]!.banner = attacker;
+    ns.arenas[action.targetArena]!.bannerProvenance = 'strike';   // banner D
     ns.log.push({
       t: 'strike',
       attacker, defender, arena: action.targetArena,
@@ -206,6 +207,7 @@ export function applyStrike(
       attackingGarrison.woundOffset += ns.config.winnerWoundsPerStrike;
     }
     ns.arenas[action.targetArena]!.banner = attacker;
+    ns.arenas[action.targetArena]!.bannerProvenance = 'strike';
     bannerOwner = attacker;
   } else if (winnerSide === defender) {
     // Attacker burns.
@@ -221,8 +223,15 @@ export function applyStrike(
       ns.players[attacker].discard.push(attackingGarrison.card.creature);
       burnedNames.push(attackingGarrison.card.creature.name);
     }
-    // Defender keeps arena (banner unchanged or planted if was empty).
+    // Defender keeps arena. They survived a strike — the banner becomes
+    // strike-won regardless of how it was originally planted (Cowork e0521df3:
+    // "A strike that flips an arena you already auto-held should mark that
+    // banner strike-won." Same applies to defender keeping their own arena
+    // through a successful defense).
     if (ns.arenas[action.targetArena]!.banner === null) ns.arenas[action.targetArena]!.banner = defender;
+    if (ns.arenas[action.targetArena]!.banner === defender) {
+      ns.arenas[action.targetArena]!.bannerProvenance = 'strike';
+    }
     defenderGarr.woundOffset += ns.config.winnerWoundsPerStrike;
     bannerOwner = ns.arenas[action.targetArena]!.banner;
   } else {
@@ -252,7 +261,10 @@ export function applyStrike(
       // The UI will choose which arena gets the free banner; for headless, pick the
       // lowest-index arena the attacker doesn't already control.
       const candidate = ns.arenas.find((a) => a.banner !== attacker);
-      if (candidate) candidate.banner = attacker;
+      if (candidate) {
+        candidate.banner = attacker;
+        candidate.bannerProvenance = 'strike';  // Ace-burn payoff counts as strike-won
+      }
     }
   }
 

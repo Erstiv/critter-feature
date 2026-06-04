@@ -9,9 +9,16 @@
 import express from 'express';
 
 const PORT = process.env.PORT || 8030;
+// Provider: xAI/Grok (OpenAI-compatible). Cowork bcdf3ec1 (Elliot's call).
+// Fallback: Gemini if XAI_API_KEY is absent (during local dev or rollback).
+const XAI_API_KEY = process.env.XAI_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
-const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const PROVIDER = XAI_API_KEY ? 'xai' : (GEMINI_API_KEY ? 'gemini' : 'none');
+const XAI_MODEL = process.env.XAI_MODEL || 'grok-2-1212';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const MODEL = PROVIDER === 'xai' ? XAI_MODEL : GEMINI_MODEL;
+const XAI_ENDPOINT = 'https://api.x.ai/v1/chat/completions';
+const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
 const SYSTEM_PROMPT = `You are Cassius Vane, ringside announcer at a 1950s drive-in creature-feature where the monsters are real and the fight just happened. You call the anatomy of the kill — never the score. The attacker's biology is the weapon (venom, deathroll, beak, crushing arms, engulfing slime); the biome is the second killer (ocean pressure, ice, desert heat, wetlands drag). You are horrified and thrilled in the same breath — half out of your chair, shouting to the crowd ("folks," "ladies and gentlemen"). Use caps sparingly for the gasp. This is campy rubber-suit gore: lurid, theatrical, a little funny — never genuinely disturbing, never mapped onto real people. Output 1 to 3 lines, each at most 30 words, plain text, one beat per line. The result is FIXED: the attacker I name won — never contradict it. Name the real critters and the real biome. Do not reuse any line I list as recent.`;
 
@@ -91,15 +98,69 @@ Call this fight:
 Write 1-3 short beats (one per line, plain text, no markdown, each ≤30 words). The attacker won — never contradict that.`;
 }
 
+async function callXAI(prompt) {
+  // OpenAI-compatible chat/completions. Spec voice goes in `system`; specific
+  // call goes in `user`. Cowork bcdf3ec1: "Loosen/disable any safety knob" —
+  // xAI doesn't expose Gemini-style safety thresholds (they keep their content
+  // filter server-side), so nothing to set here. Campy gore comes through.
+  const body = {
+    model: XAI_MODEL,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: prompt },
+    ],
+    temperature: 0.9,
+    max_tokens: 240,
+  };
+  const resp = await fetch(XAI_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${XAI_API_KEY}`,
+    },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error(`xAI ${resp.status}: ${errText.slice(0, 200)}`);
+  }
+  const json = await resp.json();
+  return json?.choices?.[0]?.message?.content ?? '';
+}
+
+async function callGemini(prompt) {
+  const body = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.9, maxOutputTokens: 240 },
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+    ],
+  };
+  const resp = await fetch(GEMINI_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error(`Gemini ${resp.status}: ${errText.slice(0, 200)}`);
+  }
+  const json = await resp.json();
+  return json?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+}
+
 const app = express();
 app.use(express.json({ limit: '64kb' }));
 
 app.get('/api/commentate/health', (_req, res) => {
-  res.json({ ok: true, model: MODEL, hasKey: !!GEMINI_API_KEY });
+  res.json({ ok: true, provider: PROVIDER, model: MODEL, hasKey: PROVIDER !== 'none' });
 });
 
 app.post('/api/commentate', async (req, res) => {
-  if (!GEMINI_API_KEY) {
+  if (PROVIDER === 'none') {
     return res.status(503).json({ error: 'no API key configured' });
   }
   const { input, recentLines } = req.body || {};
@@ -108,37 +169,11 @@ app.post('/api/commentate', async (req, res) => {
   }
   const prompt = buildPrompt(input, recentLines || []);
 
-  const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: 0.9,
-      maxOutputTokens: 240,
-    },
-    safetySettings: [
-      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
-      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
-    ],
-  };
-
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 4500);  // budget slightly over the client's 2.5s so client decides
-    const resp = await fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: ctrl.signal,
-    });
+    const t = setTimeout(() => ctrl.abort(), 4500);
+    const text = PROVIDER === 'xai' ? await callXAI(prompt) : await callGemini(prompt);
     clearTimeout(t);
-    if (!resp.ok) {
-      const errText = await resp.text();
-      console.error(`[commentate] Gemini ${resp.status}: ${errText.slice(0, 200)}`);
-      return res.status(502).json({ error: 'provider error', status: resp.status });
-    }
-    const json = await resp.json();
-    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
     const lines = text
       .split('\n')
       .map((l) => l.replace(/^[\s\-\*•>]+/, '').trim())
@@ -149,11 +184,14 @@ app.post('/api/commentate', async (req, res) => {
     }
     res.json({ lines });
   } catch (e) {
-    console.error('[commentate] error:', e.message);
+    console.error('[commentate]', e.message);
+    if (e.message?.startsWith('xAI') || e.message?.startsWith('Gemini')) {
+      return res.status(502).json({ error: 'provider error', detail: e.message.slice(0, 100) });
+    }
     res.status(504).json({ error: 'timeout or fetch failed' });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Critter Feature API listening on :${PORT} (model: ${MODEL})`);
+  console.log(`Critter Feature API listening on :${PORT} (provider: ${PROVIDER}, model: ${MODEL})`);
 });

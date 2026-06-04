@@ -58,6 +58,7 @@ export function newGame(opts: NewGameOpts): GameState {
     index,
     biome,
     banner: null,
+    bannerProvenance: null,
     garrisons: { p1: null, p2: null },
   }));
 

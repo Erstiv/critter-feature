@@ -49,7 +49,11 @@ export function effectiveStaminaCap(g: Garrison): number {
 export type Arena = {
   index: number;
   biome: Biome;
-  banner: PlayerId | null;          // who controls it (planted via strike win)
+  banner: PlayerId | null;          // who controls it
+  // Cowork e0521df3 banner rule (d): track HOW the banner was claimed.
+  //   - 'auto':   alone in the arena via Hide (Elliot's "if I'm alone I own it")
+  //   - 'strike': won in a clash. Required for Glory.
+  bannerProvenance: 'auto' | 'strike' | null;
   garrisons: Record<PlayerId, Garrison | null>;  // up to 1 per player per arena
 };
 

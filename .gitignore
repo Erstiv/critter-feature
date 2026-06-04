@@ -2,3 +2,7 @@ node_modules
 dist
 *.log
 .DS_Store
+# Secrets (xAI/Gemini API keys land in api/.env, never committed)
+.env
+.env.*
+!.env.example

@@ -76,10 +76,16 @@ function applyGarrison(state: GameState, player: PlayerId, action: Extract<Actio
   ns.garrisons.push(garrison);
   ns.arenas[action.arena]!.garrisons[player] = garrison;
 
-  // (Empty-arena auto-banner from Elliot's round-3 intuition was REVERTED in
-  // round-4: it triggered an instant Glory win during setup whenever a player
-  // placed 3+ garrisons in non-overlapping arenas. Per spec, banners are planted
-  // via Strike. Memo'd cowork for design ratification.)
+  // Banner rule (d) — cowork e0521df3 / Elliot's ratified call. If the player
+  // is alone in this arena (no opponent garrison present) AND the banner is
+  // unclaimed, auto-plant — but TAG the provenance as 'auto'. Glory requires
+  // at least one banner won by Strike, so auto-only sweeps don't trigger
+  // a setup-phase win. (settleWin reads bannerProvenance.)
+  const opponentPresent = ns.arenas[action.arena]!.garrisons[otherPlayer(player)] !== null;
+  if (!opponentPresent && ns.arenas[action.arena]!.banner === null) {
+    ns.arenas[action.arena]!.banner = player;
+    ns.arenas[action.arena]!.bannerProvenance = 'auto';
+  }
 
   if (action.placeAce) ns.players[player].aceGarrisonId = garrison.id;
 
@@ -258,6 +264,7 @@ function applyCall(state: GameState, caller: PlayerId, action: Extract<Action, {
     // They lied → burn that garrison, caller takes the arena.
     burnGarrison(ns, newG);
     ns.arenas[action.targetArena]!.banner = caller;
+    ns.arenas[action.targetArena]!.bannerProvenance = 'strike';  // Call-burn is a contested win
     ns.log.push({
       t: 'call', caller, target, arena: action.targetArena,
       wasTrue: false, outcome: 'caller-wins-arena',

@@ -9,12 +9,21 @@ export type WinCheck = {
   condition: 'glory' | 'endurance' | 'assassination';
 };
 
-// GLORY: a player holds majorityForGlory banners.
+// GLORY (cowork e0521df3 banner rule (d)): a player holds majorityForGlory
+// banners AND at least one of those banners was won by Strike (i.e. an actual
+// fight has happened). Auto-claim banners from Hide count toward the count but
+// cannot be the sole basis for victory — this kills the setup-phase explosion.
 function checkGlory(state: GameState): WinCheck | null {
   const tally: Record<PlayerId, number> = { p1: 0, p2: 0 };
-  for (const a of state.arenas) if (a.banner) tally[a.banner] += 1;
+  const strikeWon: Record<PlayerId, number> = { p1: 0, p2: 0 };
+  for (const a of state.arenas) {
+    if (a.banner) {
+      tally[a.banner] += 1;
+      if (a.bannerProvenance === 'strike') strikeWon[a.banner] += 1;
+    }
+  }
   for (const p of PLAYERS) {
-    if (tally[p] >= state.config.majorityForGlory) {
+    if (tally[p] >= state.config.majorityForGlory && strikeWon[p] >= 1) {
       return { winner: p, condition: 'glory' };
     }
   }
