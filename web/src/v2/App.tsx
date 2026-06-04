@@ -43,11 +43,15 @@ export function V2App() {
   }
 
   function submitGarrisons(player: PlayerId, actions: Action[]) {
-    // Dispatch each garrison, then EndTurn to advance to the next setup-side player.
+    // Setup-phase batch: dispatch all garrisons as one transaction. Engine enforces
+    // "one main action per turn"; during setup we reset actionTakenThisTurn between
+    // garrisons so the batch lands cleanly. EndTurn at the end flips active player.
     if (!game) return;
     let cur = game;
     let lastResult: AR | null = null;
     for (const a of actions) {
+      // Reset the per-turn main-action gate so the next Garrison validates.
+      cur = { ...cur, actionTakenThisTurn: false };
       const r = runAction(cur, player, a, mulberry32(seed + cur.log.length));
       if ('error' in r) {
         setPendingResult({ title: 'Garrison failed', body: [r.error], flavor: 'bad' });
