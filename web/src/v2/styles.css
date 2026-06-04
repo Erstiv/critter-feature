@@ -1,0 +1,248 @@
+/* v0.2 hot-seat — austere play surface on top of the marquee. */
+
+.v2-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 48px;
+}
+
+.v2-section {
+  margin: 24px 0;
+}
+
+.v2-section-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+.v2-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.v2-col { display: flex; flex-direction: column; gap: 10px; }
+
+/* Setup */
+.v2-setup-panel {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  padding: 24px;
+  border-radius: 4px;
+  max-width: 720px;
+  margin: 24px auto;
+}
+.v2-setup-panel h2 { font-family: var(--font-display); font-size: 22px; margin: 0 0 8px; }
+.v2-setup-panel p { color: var(--ink-dim); margin: 0 0 18px; font-size: 13px; }
+
+/* Pass-the-device gate */
+.v2-gate-cover {
+  position: fixed;
+  inset: 0;
+  background: #0d0a07;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 999;
+}
+.v2-gate-cover h1 {
+  font-family: var(--font-marquee);
+  font-size: 48px;
+  color: var(--marquee-cream);
+  text-shadow: 2px 2px 0 var(--marquee-red);
+  margin: 0 0 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.v2-gate-cover p { color: var(--marquee-gold); font-family: var(--font-marquee); letter-spacing: 2px; font-size: 14px; }
+.v2-gate-cover button {
+  margin-top: 30px;
+  font-size: 16px;
+  padding: 14px 28px;
+  letter-spacing: 1px;
+}
+
+/* Board */
+.v2-board { display: grid; grid-template-columns: 1fr; gap: 18px; }
+
+.v2-arena-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.v2-arena {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 10px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+}
+.v2-arena.selectable { cursor: pointer; }
+.v2-arena.selectable:hover { border-color: var(--accent); }
+.v2-arena.selected { border-color: var(--marquee-gold); background: #2a2520; }
+
+.v2-arena-header {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.v2-arena-num { color: var(--accent); font-weight: bold; }
+.v2-arena-biome { color: var(--ink); font-size: 12px; font-style: italic; text-transform: none; }
+.v2-arena-banner {
+  text-align: center;
+  font-size: 22px;
+  margin: 4px 0;
+}
+
+.v2-garrison {
+  background: #1d1a17;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 6px 8px;
+  margin: 3px 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.v2-garrison.mine { border-color: var(--home); }
+.v2-garrison.opp-revealed { border-color: var(--exposed); }
+.v2-garrison.opp-hidden { border-color: var(--rule); background: #14110e; color: var(--ink-dim); font-style: italic; }
+.v2-garrison.ace { box-shadow: 0 0 0 1px var(--marquee-gold) inset; }
+.v2-garrison-name { font-family: var(--font-display); font-size: 12px; font-weight: bold; }
+.v2-garrison-meta { font-size: 10px; color: var(--ink-dim); }
+.v2-garrison .badge { display: inline-block; padding: 1px 4px; border-radius: 2px; background: var(--rule); margin-right: 2px; }
+
+/* Hand */
+.v2-hand {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  padding: 12px;
+  border-radius: 4px;
+}
+.v2-hand-card {
+  background: #1d1a17;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 8px 10px;
+  font-size: 11px;
+  min-width: 140px;
+  cursor: default;
+}
+.v2-hand-card.selectable { cursor: pointer; }
+.v2-hand-card.selectable:hover { border-color: var(--accent); }
+.v2-hand-card.selected { border-color: var(--marquee-gold); background: #2a2520; }
+.v2-hand-name { font-family: var(--font-display); font-size: 13px; }
+.v2-hand-meta { font-size: 10px; color: var(--ink-dim); margin-top: 2px; }
+
+/* Action menu */
+.v2-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.v2-actions button { font-size: 13px; padding: 10px 16px; }
+
+/* Action result panel */
+.v2-result {
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  background: var(--panel);
+}
+.v2-result.good { border-color: var(--good); }
+.v2-result.bad { border-color: var(--danger); }
+.v2-result.spectacle {
+  background: linear-gradient(180deg, #2a1810 0%, #1a0e08 100%);
+  border-color: var(--marquee-gold);
+  border-width: 2px;
+}
+.v2-result h3 {
+  font-family: var(--font-display);
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--accent);
+}
+.v2-result.spectacle h3 {
+  font-family: var(--font-marquee);
+  font-size: 18px;
+  color: var(--marquee-cream);
+  text-shadow: 1px 1px 0 var(--marquee-red);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.v2-result p { margin: 4px 0; font-size: 13px; color: var(--ink); }
+
+/* Modals */
+.v2-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 6, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.v2-modal {
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 22px 24px;
+  min-width: 320px;
+  max-width: 520px;
+}
+.v2-modal h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+.v2-modal .v2-actions { margin-top: 16px; }
+
+/* Status bar */
+.v2-status {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.v2-status .you { color: var(--marquee-gold); font-family: var(--font-display); font-size: 14px; }
+.v2-status .opp { color: var(--ink-dim); }
+
+/* Win banner — same DNA as KO line */
+.v2-win {
+  background: linear-gradient(180deg, #2a1810 0%, #1a0e08 100%);
+  border-top: 3px double var(--marquee-gold);
+  border-bottom: 3px double var(--marquee-gold);
+  padding: 22px;
+  text-align: center;
+  margin: 32px 0;
+}
+.v2-win h2 {
+  font-family: var(--font-marquee);
+  font-size: 28px;
+  color: var(--marquee-gold);
+  text-shadow: 2px 2px 0 var(--marquee-red);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+.v2-win p { color: var(--marquee-cream); font-family: var(--font-marquee); letter-spacing: 1px; }

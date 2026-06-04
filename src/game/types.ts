@@ -106,9 +106,8 @@ export type PlayerState = {
 // ──────────────────────────────────────────────────────────────────────
 
 export type GarrisonView =
-  | { hidden: true; arena: number; declared?: string }                // know there's something there; maybe a declaration
-  | { hidden: false; arena: number; cardName: string; card: Card }    // revealed
-  | { hidden: true; arena: number; sniffedTags: Tag[]; declared?: string };  // partial reveal
+  | { hidden: true; arena: number; sniffedTags: Tag[]; declared?: string }   // face-down; sniffedTags = [] if no Sniff has been performed
+  | { hidden: false; arena: number; cardName: string; card: Card };          // revealed (by strike, Call, or Deep Scout)
 
 export type PlayerView = {
   me: PlayerId;
