@@ -1,0 +1,17 @@
+{
+  "name": "critter-feature-api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Cassius Vane live commentary endpoint — proxies to Gemini",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,7 +1,7 @@
 // Top-level state machine for the v0.2 hot-seat UI.
 import type { GameState, PlayerId, Action, GameEvent } from '../../../src/game/index.ts';
 import { applyAction, playerView } from '../../../src/game/index.ts';
-import { strikeCommentary, winCommentary } from './commentary.ts';
+import { strikeCommentary, winCommentary, type CommentaryInput } from './commentary.ts';
 export { winCommentary };
 
 export type Phase =
@@ -15,7 +15,8 @@ export type Phase =
 // What a just-played action produced — the "clean per-action output" cowork wants.
 export type ActionResult = {
   title: string;            // "Sniff revealed" / "Strike resolved" / "Bluff called!"
-  narration?: string;       // The hero line — Cassius commentary for strikes. Rendered big + italic.
+  narration?: string;       // Initial Cassius line (the static fallback). Renders big + italic.
+  liveInput?: CommentaryInput; // Optional: if set, ActionResult kicks off live commentate + swaps in.
   body: string[];           // 1-3 short detail lines (dice, costs, etc.)
   flavor?: 'good' | 'bad' | 'neutral' | 'spectacle';
 };
@@ -71,13 +72,15 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
       const def = strikeEv.defenderName;
       const arenaBiome = _state.arenas[strikeEv.arena]!.biome;
       const salt = (resultEv.aHits + 1) * 17 + (resultEv.bHits + 1) * 23 + strikeEv.arena * 31 + _state.log.length;
-      const narration = strikeCommentary({
+      const liveInput: CommentaryInput = {
         strikeReq: strikeEv,
         strikeResult: resultEv,
         biome: arenaBiome,
         attackerName: att,
         defenderName: def,
-      }, salt);
+        attackerTags: resultEv.attackerTags,
+      };
+      const narration = strikeCommentary(liveInput, salt);
       const details: string[] = [];
       if (def !== null) {
         details.push(`${att} rolled ${resultEv.aHits} hits · ${def} rolled ${resultEv.bHits} hits.`);
@@ -98,7 +101,7 @@ function summarize(action: Action, newEvents: GameEvent[], asker: PlayerId, _sta
           : (def === null
             ? `Banner planted at ${arenaBiome}`
             : `${arenaBiome} — ${resultEv.winner === asker ? 'You win' : 'You lose'}`));
-      return { title, narration, body: details, flavor };
+      return { title, narration, liveInput, body: details, flavor };
     }
     case 'Redeploy': {
       return { title: 'Redeployed', body: [`Moved garrison; Dug-In bonus lost.`], flavor: 'neutral' };

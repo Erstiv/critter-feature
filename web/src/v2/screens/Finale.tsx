@@ -1,9 +1,10 @@
 // Match-end full-screen spectacle (cowork d4a5dc89 Q9).
 // Cassius narration + winner in marquee + Ace unmask for assassination + Rematch CTA.
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { GameState, PlayerId, GameEvent } from '../../../../src/game/index.ts';
 import { winCommentary } from '../commentary.ts';
+import { commentateMatchEnd } from '../commentateClient.ts';
 
 type Props = {
   game: GameState;
@@ -17,9 +18,32 @@ export function Finale({ game, winner, condition, onRematch }: Props) {
   const winnerLabel = winner === 'p1' ? 'Player 1' : 'Player 2';
   const loserLabel = loser === 'p1' ? 'Player 1' : 'Player 2';
 
-  const narration = useMemo(() => {
-    return winCommentary(condition, winnerLabel, loserLabel, game.log.length);
-  }, [condition, winnerLabel, loserLabel, game.log.length]);
+  // Pick the most-recent strike biome for the match-end line. Defaults to
+  // "the bill" if no strike happened (e.g. endurance via deck exhaustion).
+  const lastBiome = useMemo(() => {
+    for (let i = game.log.length - 1; i >= 0; i--) {
+      const e = game.log[i]!;
+      if (e.t === 'strike') return game.arenas[e.arena]!.biome;
+    }
+    return 'the bill';
+  }, [game.log, game.arenas]);
+
+  const fallbackNarration = useMemo(() => {
+    return winCommentary(condition, winnerLabel, loserLabel, game.log.length, lastBiome);
+  }, [condition, winnerLabel, loserLabel, game.log.length, lastBiome]);
+
+  // Live commentate — swap in if it arrives in budget.
+  const [liveLines, setLiveLines] = useState<string[] | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const { live } = commentateMatchEnd(condition, winnerLabel, loserLabel, lastBiome, game.log.length);
+    live.then((lines) => {
+      if (!cancelled && lines && lines.length > 0) setLiveLines(lines);
+    });
+    return () => { cancelled = true; };
+  }, [condition, winnerLabel, loserLabel, lastBiome, game.log.length]);
+
+  const narration = liveLines ? liveLines.join(' ') : fallbackNarration;
 
   // Ace unmask: for assassination, surface the burned Ace's name from the log
   // (look for the most recent strike-result with aceBurned and find the burned name).

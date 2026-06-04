@@ -164,7 +164,21 @@ export type GameEvent =
   | { t: 'declare'; player: PlayerId; arena: number; declaration: string }
   | { t: 'call'; caller: PlayerId; target: PlayerId; arena: number; wasTrue: boolean; outcome: 'caller-wins-arena' | 'caller-loses-token-and-reveals' }
   | { t: 'strike'; attacker: PlayerId; defender: PlayerId; arena: number; attackerName: string; defenderName: string | null }
-  | { t: 'strike-result'; attacker: PlayerId; defender: PlayerId; arena: number; winner: PlayerId | 'tie'; aHits: number; bHits: number; burned: string[]; bannerOwner: PlayerId | null; aceBurned: boolean; legLog: string[] }
+  | {
+      t: 'strike-result';
+      attacker: PlayerId; defender: PlayerId;
+      arena: number;
+      winner: PlayerId | 'tie';
+      aHits: number; bHits: number;
+      burned: string[];
+      bannerOwner: PlayerId | null;
+      aceBurned: boolean;
+      legLog: string[];
+      // For Cassius commentary (spec §2.1 CommentateInput): attacker + defender
+      // identity + tags + stats. Defender null for empty-arena strikes.
+      attackerName: string; attackerTags: Tag[]; attackerMight: number; attackerStamina: number;
+      defenderName: string | null; defenderTags: Tag[] | null;
+    }
   | { t: 'redeploy'; player: PlayerId; from: number; to: number }
   | { t: 'draw'; player: PlayerId; cards: number }
   | { t: 'turn-end'; player: PlayerId }

@@ -124,6 +124,12 @@ export function applyStrike(
       bannerOwner: attacker,
       aceBurned: false,
       legLog: ['empty arena — banner planted'],
+      attackerName: attackingGarrison.card.creature.name,
+      attackerTags: attackingGarrison.card.creature.tags,
+      attackerMight: attackingGarrison.card.might,
+      attackerStamina: attackingGarrison.card.stamina,
+      defenderName: null,
+      defenderTags: null,
     });
     ns.actionTakenThisTurn = true;
     return { ok: true, state: ns };
@@ -259,6 +265,12 @@ export function applyStrike(
     bannerOwner,
     aceBurned,
     legLog: out.result.log,
+    attackerName: attackingGarrison.card.creature.name,
+    attackerTags: attackingGarrison.card.creature.tags,
+    attackerMight: attackingGarrison.card.might,
+    attackerStamina: attackingGarrison.card.stamina,
+    defenderName: defenderGarr.card.creature.name,
+    defenderTags: defenderGarr.card.creature.tags,
   });
   ns.actionTakenThisTurn = true;
   return { ok: true, state: ns };

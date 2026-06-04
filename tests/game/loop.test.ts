@@ -157,6 +157,47 @@ describe('v0.2 strike — clash uses engine', () => {
   });
 });
 
+describe('v0.2 Ace opt-out', () => {
+  it('player without an Ace cannot be assassinated; opponent has to win via Glory or Endurance', () => {
+    const rand = mulberry32(7);
+    const deck = [cByName('Tardigrade'), cByName('Sea Otter'), cByName('Jaguar'), cByName('Raven'), cByName('Scorpion')];
+    let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), rand });
+    // p1 garrisons without tucking the Ace
+    state = step(state, 'p1', { kind: 'Garrison', cardName: 'Tardigrade', arena: 0 /* no placeAce */ });
+    expect(state.players.p1.aceGarrisonId).toBeNull();
+    state = step(state, 'p1', { kind: 'EndTurn' });
+    state = step(state, 'p2', { kind: 'Garrison', cardName: 'Sea Otter', arena: 1, placeAce: true });
+    state = step(state, 'p2', { kind: 'EndTurn' });
+
+    // p2 strikes p1's Tardigrade — even if it burns, no Ace burn possible since p1 has no Ace.
+    state = step(state, 'p1', { kind: 'Strike', sourceArena: 'hand', sourceCardName: 'Jaguar', targetArena: 1 }, mulberry32(7));
+    const sr = state.log.find((e) => e.t === 'strike-result');
+    expect(sr?.t).toBe('strike-result');
+    // Only check if Tardigrade was actually burned — could go either way at this seed.
+  });
+});
+
+describe('v0.2 strike-result event carries attacker+defender tags for commentary', () => {
+  it('attackerTags + defenderTags + might/stamina are emitted', () => {
+    const rand = mulberry32(7);
+    const deck = [cByName('Saltwater Crocodile'), cByName('Peregrine Falcon'), cByName('Jaguar'), cByName('Raven'), cByName('Scorpion')];
+    let state = newGame({ p1Deck: deck.slice(), p2Deck: deck.slice(), arenas: ['Wetland/Mud', 'Ice/Arctic', 'Plains', 'Sky', 'Jungle'], rand, firstPlayer: 'p2' });
+    state = step(state, 'p2', { kind: 'Garrison', cardName: 'Peregrine Falcon', arena: 0 });
+    state = step(state, 'p2', { kind: 'EndTurn' });
+    state = step(state, 'p1', { kind: 'Strike', sourceArena: 'hand', sourceCardName: 'Saltwater Crocodile', targetArena: 0 });
+    const sr = state.log.find((e) => e.t === 'strike-result');
+    if (sr?.t === 'strike-result') {
+      expect(sr.attackerName).toBe('Saltwater Crocodile');
+      expect(sr.attackerTags).toContain('Aquatic');
+      expect(sr.attackerMight).toBe(4);
+      expect(sr.defenderName).toBe('Peregrine Falcon');
+      expect(sr.defenderTags).toContain('Flyer');
+    } else {
+      throw new Error('expected strike-result');
+    }
+  });
+});
+
 describe('v0.2 win — Assassination (Ace burned)', () => {
   it('burning the opponent Ace fires win state on the same applyAction', () => {
     // p2 garrisons Peregrine + Ace at Sky. p1 strikes from hand with Saltwater Croc

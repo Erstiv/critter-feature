@@ -55,7 +55,8 @@ export function GarrisonPhase({ player, game, onSubmit }: Props) {
   }
 
   function submit() {
-    if (!aceAssigned) return;  // require Ace
+    // Ace is no longer required (cowork 5d66cac6 Build 2: Ace opt-out).
+    if (placements.length === 0) return;
     const actions: Action[] = [];
     for (const p of placements) {
       const a: Action = { kind: 'Garrison', cardName: p.cardName, arena: p.arena, placeAce: p.isAce };
@@ -140,15 +141,21 @@ export function GarrisonPhase({ player, game, onSubmit }: Props) {
         </div>
       </div>
 
-      <div className="v2-row" style={{ marginTop: 24 }}>
-        <button
-          onClick={submit}
-          disabled={placementsRemaining === cap /* no placements at all */ || !aceAssigned}
-          title={!aceAssigned ? 'You must tuck the Ace under one garrison' : ''}
-        >
-          Lock in {placements.length} garrison{placements.length === 1 ? '' : 's'} → pass device
-        </button>
-        {!aceAssigned && <span style={{ color: 'var(--danger)', fontSize: 12 }}>Ace required</span>}
+      <div className="v2-row" style={{ marginTop: 24, flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
+        {!aceAssigned && placements.length > 0 && (
+          <div style={{ background: '#2a1810', border: '1px solid var(--marquee-gold)', padding: '10px 14px', borderRadius: 4, fontSize: 12, maxWidth: 720 }}>
+            <strong style={{ color: 'var(--marquee-gold)' }}>★ No Ace?</strong> You'll be immune to <strong>Assassination</strong> (no champion to burn) — but you'll forfeit your Ace's <strong>+1 defense die</strong> AND the surviving-Ace tiebreaker at game end. Risk vs control.
+          </div>
+        )}
+        <div className="v2-row">
+          <button
+            onClick={submit}
+            disabled={placements.length === 0}
+            title={placements.length === 0 ? 'Place at least one critter to lock in' : ''}
+          >
+            Lock in {placements.length} {aceAssigned ? 'garrisons (with ★ Ace)' : 'garrisons (NO Ace — play without)'} → pass device
+          </button>
+        </div>
       </div>
     </div>
   );
