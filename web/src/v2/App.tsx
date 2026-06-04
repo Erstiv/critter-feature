@@ -23,20 +23,24 @@ export function V2App() {
 
   function startMatch() {
     const r = mulberry32(seed);
-    // Cowork 01dc9dec Q2: per spec §2/§9, each player gets ~15 critters. Pick
-    // 15 random from the starter pool WITH replacement (duplicates fine — cowork-
-    // sanctioned). Both decks rolled independently so each player's "deck" is
-    // distinct in composition + order.
-    function build15(): typeof STARTER_8_PLUS {
-      const out: typeof STARTER_8_PLUS = [];
-      for (let i = 0; i < 15; i++) {
-        out.push(STARTER_8_PLUS[Math.floor(r() * STARTER_8_PLUS.length)]!);
-      }
-      return out;
-    }
-    const fresh = newGame({ p1Deck: build15(), p2Deck: build15(), rand: r });
+    // Cowork 41895397 walked back the ~15 ask: accept full starter 9 each as the
+    // v0.2 deck. We only move toward ~15 (from the 130 roster) once generateCard
+    // exists and we have more distinct cards; duplicates with replacement are too
+    // cheap. So each player gets the full starter 9, shuffled independently.
+    const p1Deck = shuffleWith(STARTER_8_PLUS.slice(), r);
+    const p2Deck = shuffleWith(STARTER_8_PLUS.slice(), r);
+    const fresh = newGame({ p1Deck, p2Deck, rand: r });
     setGame(fresh);
     setPhase({ kind: 'pass-to-garrison', player: 'p1' });
+  }
+
+  function shuffleWith<T>(arr: T[], rand: () => number): T[] {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [a[i], a[j]] = [a[j]!, a[i]!];
+    }
+    return a;
   }
 
 
